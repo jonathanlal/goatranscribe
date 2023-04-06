@@ -9,7 +9,6 @@ import FrostbyteLayout from 'components/FrostbyteLayout';
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
     const session = await getSession(ctx.req, ctx.res);
-    //check the console of backend, you will get tokens here
     return {
       props: {
         user: session.user,
@@ -23,10 +22,10 @@ type HomePageProps = {
 };
 
 const HomePage = ({ user }: HomePageProps) => {
-  const [uploading, setUploading] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
-  const [progressMsg, setProgressMsg] = useState('');
+  const [fileSize, setFileSize] = useState(0);
   const [data, setData] = useState<{
     audio: string;
     transcript: Subtitle[];
@@ -38,7 +37,7 @@ const HomePage = ({ user }: HomePageProps) => {
     if (!fileInputRef.current?.files || !fileInputRef.current.files[0]) return;
 
     const file = fileInputRef.current.files[0];
-    setUploading(true);
+    setIsUploading(true);
 
     try {
       axios
@@ -50,52 +49,34 @@ const HomePage = ({ user }: HomePageProps) => {
           const containerClient: ContainerClient =
             blobService.getContainerClient(user?.id as string);
           const blobClient = containerClient.getBlockBlobClient(file.name);
-          const options = { blobHTTPHeaders: { blobContentType: file.type } };
-          await blobClient.uploadData(file, options);
+          const options = {
+            blobHTTPHeaders: { blobContentType: file.type },
+            onProgress: (progressEvent) => {
+              setProgress(progressEvent.loadedBytes);
+            },
+          };
+          setFileSize(file.size);
+          console.log('bytes:', file.size);
+          blobClient.uploadData(file, options).then((response) => {
+            setIsUploading(false);
+            const url = `https://cdn.goatranscribe.com/${user?.id as string}/${
+              file.name
+            }`;
+            console.log('url:', url);
+          });
         })
         .catch((err) => {
           console.log(err);
+          setIsUploading(false);
         });
-      // if (response.status === 200) {
-      // const sasUrl = response.data.sasUrl;
-
-      // const blobService = new BlobServiceClient(sasUrl);
-      // const containerClient: ContainerClient = blobService.getContainerClient(
-      //   user?.id as string
-      // );
-      // const blobClient = containerClient.getBlockBlobClient(file.name);
-      // const options = { blobHTTPHeaders: { blobContentType: file.type } };
-      // await blobClient.uploadData(file, options);
-      // const response2 = await axios.put(sasUrl, file, {
-      //   headers: {
-      //     'Content-Type': fileType,
-      //   },
-      //   onUploadProgress: (progressEvent) => {
-      //     // Calculate the progress percentage
-      //     const percentCompleted = Math.round(
-      //       (progressEvent.loaded * 100) / progressEvent.total
-      //     );
-      //     // Update the progress bar value
-      //     const progressBar = document.getElementById(
-      //       'progress-bar'
-      //     ) as HTMLProgressElement;
-      //     if (progressBar) {
-      //       progressBar.value = percentCompleted;
-      //     }
-      //   },
-      // });
-      // console.log('File uploaded:', response2.data);
-      // }
       // setData({
       //   audio: response.data.audio,
       //   transcript: response.data.transcriptJson,
       // });
-      // console.log('File uploaded:', response.data);
     } catch (error) {
       console.error('Error uploading file:', error);
+      setIsUploading(false);
     }
-
-    setUploading(false);
   };
 
   return (
@@ -108,20 +89,21 @@ const HomePage = ({ user }: HomePageProps) => {
           <p>{JSON.stringify(user)}</p>
         </div>
       )}
-      {/* <p>{customProp}</p> */}
-      {/* {userTest && <div>{JSON.stringify(userTest)}</div>} */}
       <h1>Upload File</h1>
       <form onSubmit={handleSubmit}>
         <input ref={fileInputRef} type="file" required />
         <button type="submit">Upload</button>
       </form>
-      {uploading && (
+      {isUploading && (
         <>
-          <p>{progressMsg || 'Uploading...'}</p>
-          <progress id="progress-bar" value={progress} max="100"></progress>
+          <p>Uploading...</p>
+          <progress
+            id="progress-bar"
+            value={progress}
+            max={fileSize}
+          ></progress>
         </>
       )}
-
       {data && (
         <AudioPlayerWithSubtitles
           audioSrc={data.audio}
