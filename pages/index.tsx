@@ -25,7 +25,6 @@ const HomePage = ({}: HomePageProps) => {
     if (!fileInputRef.current?.files || !fileInputRef.current.files[0]) return;
 
     const file = fileInputRef.current.files[0];
-    // const container_name = user?.id as string;
     setUploading(true);
 
     try {
