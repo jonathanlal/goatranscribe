@@ -18,6 +18,7 @@ export default withApiAuthRequired(async function (
   // Set the Authorization header with the access token
   requestHeaders.set('Authorization', `Bearer ${accessToken}`);
 
+  console.log('api URL: ', `${process.env.GOAT_API}${endpoint}`);
   const response = await fetch(`${process.env.GOAT_API}${endpoint}`, {
     headers: requestHeaders,
     method: req.method, // Use the original request method
