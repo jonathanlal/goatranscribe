@@ -2,12 +2,27 @@ import { useRef, useState } from 'react';
 import axios from 'axios';
 import AudioPlayerWithSubtitles from 'components/AudioPlayerWithSubtitles';
 import { Subtitle } from 'interfaces/Subtitle';
-import { useUser } from '@auth0/nextjs-auth0/client';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
+import { Claims, getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import FrostbyteLayout from 'components/FrostbyteLayout';
 
-type HomePageProps = {};
+export const getServerSideProps = withPageAuthRequired({
+  async getServerSideProps(ctx) {
+    const session = await getSession(ctx.req, ctx.res);
+    //check the console of backend, you will get tokens here
+    return {
+      props: {
+        user: session.user,
+      },
+    };
+  },
+});
 
-const HomePage = ({}: HomePageProps) => {
+type HomePageProps = {
+  user: Claims;
+};
+
+const HomePage = ({ user }: HomePageProps) => {
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
@@ -16,8 +31,6 @@ const HomePage = ({}: HomePageProps) => {
     audio: string;
     transcript: Subtitle[];
   }>(null);
-
-  const { user, error, isLoading } = useUser();
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -84,11 +97,9 @@ const HomePage = ({}: HomePageProps) => {
 
     setUploading(false);
   };
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>{error.message}</div>;
 
   return (
-    <div>
+    <FrostbyteLayout user={user}>
       {user && (
         <div>
           <img src={user.picture} alt={user.name} />
@@ -97,6 +108,8 @@ const HomePage = ({}: HomePageProps) => {
           <p>{JSON.stringify(user)}</p>
         </div>
       )}
+      {/* <p>{customProp}</p> */}
+      {/* {userTest && <div>{JSON.stringify(userTest)}</div>} */}
       <h1>Upload File</h1>
       <form onSubmit={handleSubmit}>
         <input ref={fileInputRef} type="file" required />
@@ -115,7 +128,7 @@ const HomePage = ({}: HomePageProps) => {
           transcript={data.transcript}
         />
       )}
-    </div>
+    </FrostbyteLayout>
   );
 };
 
