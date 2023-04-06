@@ -1,5 +1,4 @@
-// pages/index.tsx
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import axios from 'axios';
 import AudioPlayerWithSubtitles from 'components/AudioPlayerWithSubtitles';
 import { Subtitle } from 'interfaces/Subtitle';
@@ -30,7 +29,7 @@ const HomePage = ({}: HomePageProps) => {
     setUploading(true);
 
     try {
-      axios.post('/api/ninja/sasUrl').then(async (response) => {
+      axios.post('/api/goat/sasUrl').then(async (response) => {
         const sasUrl = response.data.sasUrl;
         // api routes have 4mb limit on body size so we need to upload directly to storage
         const blobService = new BlobServiceClient(sasUrl);

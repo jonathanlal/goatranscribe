@@ -4,7 +4,7 @@ import { Logo } from '../components/Logo';
 export const footerItems: FooterProps['footerItems'] = [
   {
     type: 'logo',
-    description: 'Ninja Transcribe',
+    description: 'Goatranscribe',
     comp: <Logo />,
   },
   {
