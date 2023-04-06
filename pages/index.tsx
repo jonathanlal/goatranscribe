@@ -28,17 +28,21 @@ const HomePage = ({}: HomePageProps) => {
     setUploading(true);
 
     try {
-      axios.post('/api/goat/sasUrl').then(async (response) => {
-        const sasUrl = response.data.sasUrl;
-        // api routes have 4mb limit on body size so we need to upload directly to storage
-        const blobService = new BlobServiceClient(sasUrl);
-        const containerClient: ContainerClient = blobService.getContainerClient(
-          user?.id as string
-        );
-        const blobClient = containerClient.getBlockBlobClient(file.name);
-        const options = { blobHTTPHeaders: { blobContentType: file.type } };
-        await blobClient.uploadData(file, options);
-      });
+      axios
+        .post('/api/goat/sasUrl')
+        .then(async (response) => {
+          const sasUrl = response.data.sasUrl;
+          // api routes have 4mb limit on body size so we need to upload directly to storage
+          const blobService = new BlobServiceClient(sasUrl);
+          const containerClient: ContainerClient =
+            blobService.getContainerClient(user?.id as string);
+          const blobClient = containerClient.getBlockBlobClient(file.name);
+          const options = { blobHTTPHeaders: { blobContentType: file.type } };
+          await blobClient.uploadData(file, options);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
       // if (response.status === 200) {
       // const sasUrl = response.data.sasUrl;
 
