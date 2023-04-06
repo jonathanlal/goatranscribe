@@ -19,11 +19,14 @@ export default withApiAuthRequired(async function (
   requestHeaders.set('Authorization', `Bearer ${accessToken}`);
 
   console.log('api URL: ', `${process.env.GOAT_API}${endpoint}`);
-  const response = await fetch(`${process.env.GOAT_API}${endpoint}`, {
-    headers: requestHeaders,
-    method: req.method, // Use the original request method
-    body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined, // Pass the request body if it's not a GET request
-  });
+  const response = await fetch(
+    `https://api.goatranscribe.com/api/${endpoint}`,
+    {
+      headers: requestHeaders,
+      method: req.method, // Use the original request method
+      body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined, // Pass the request body if it's not a GET request
+    }
+  );
 
   if (response.status === 200) {
     const data = await response.json();
