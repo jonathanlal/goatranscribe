@@ -16,7 +16,7 @@ function AppContent({ Component, pageProps }) {
       isDarkThemeActive={darkMode}
       footer={{
         footerItems: footerItems,
-        name: 'Seek The Sage',
+        name: 'Ninja Transcribe',
       }}
       navMenu={{
         navItems: user ? loggedInNavBar : loggedOutNavBar,
