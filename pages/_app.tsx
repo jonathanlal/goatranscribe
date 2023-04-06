@@ -1,12 +1,15 @@
 import 'styles/global.css';
 import { FrostbyteProvider, styled } from 'frostbyte';
 import { useState } from 'react';
-import { loggedOutNavBar } from 'config/navbar';
+import { loggedInNavBar, loggedOutNavBar } from 'config/navbar';
 import { Logo } from 'components/Logo';
 import { footerItems } from 'config/footer';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
+import { useUser } from '@auth0/nextjs-auth0/client';
 
-export default function App({ Component, pageProps }) {
+function AppContent({ Component, pageProps }) {
   const [darkMode, setDarkMode] = useState(false);
+  const { user, error, isLoading } = useUser();
 
   return (
     <FrostbyteProvider
@@ -16,7 +19,7 @@ export default function App({ Component, pageProps }) {
         name: 'Seek The Sage',
       }}
       navMenu={{
-        navItems: loggedOutNavBar,
+        navItems: user ? loggedInNavBar : loggedOutNavBar,
         logo: {
           comp: <Logo />,
         },
@@ -25,5 +28,13 @@ export default function App({ Component, pageProps }) {
     >
       <Component {...pageProps} />
     </FrostbyteProvider>
+  );
+}
+
+export default function App({ Component, pageProps }) {
+  return (
+    <UserProvider>
+      <AppContent Component={Component} pageProps={pageProps} />
+    </UserProvider>
   );
 }
