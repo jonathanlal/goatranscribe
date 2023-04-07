@@ -26,6 +26,7 @@ const HomePage = ({ user }: HomePageProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [progress, setProgress] = useState(0);
   const [fileSize, setFileSize] = useState(0);
+  const [url, setUrl] = useState<string>(null);
   const [data, setData] = useState<{
     audio: string;
     transcript: Subtitle[];
@@ -57,12 +58,15 @@ const HomePage = ({ user }: HomePageProps) => {
           };
           setFileSize(file.size);
           console.log('bytes:', file.size);
-          blobClient.uploadData(file, options).then((response) => {
+          blobClient.uploadData(file, options).then(async (response) => {
             setIsUploading(false);
-            const url = `https://cdn.goatranscribe.com/${user?.id as string}/${
-              file.name
-            }`;
-            console.log('url:', url);
+
+            const sasToken = await axios.post<{
+              sasUrl: string;
+            }>('/api/goat/sasToken', {
+              fileName: file.name,
+            });
+            setUrl(sasToken.data.sasUrl);
           });
         })
         .catch((err) => {
@@ -103,6 +107,11 @@ const HomePage = ({ user }: HomePageProps) => {
             max={fileSize}
           ></progress>
         </>
+      )}
+      {url && (
+        <a href={url} target="_blank" rel="noreferrer">
+          Link
+        </a>
       )}
       {data && (
         <AudioPlayerWithSubtitles
