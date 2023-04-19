@@ -1,5 +1,17 @@
-import { NavMenuProps } from 'frostbyte';
+import { NavMenuProps, styled } from 'frostbyte';
+import { EnterIcon } from '@radix-ui/react-icons';
 
+const CTABtn = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  fontWeight: 600,
+  // color: '$primary',
+
+  // '&:hover': {
+  //   color: '$primaryContrast',
+  // },
+});
 export const loggedOutNavBar: NavMenuProps['navItems'] = [
   // {
   //   type: 'dropdown',
@@ -57,10 +69,26 @@ export const loggedOutNavBar: NavMenuProps['navItems'] = [
   {
     href: '/api/auth/login',
     type: 'button',
-    label: 'Login',
+    label: (
+      <CTABtn>
+        <EnterIcon
+          width={25}
+          height={25}
+          stroke="currentColor"
+          strokeWidth={1}
+          strokeOpacity={0.5}
+          style={{
+            marginTop: 3,
+            width: 25,
+          }}
+        />
+        <span>App</span>
+      </CTABtn>
+    ),
     button: {
       kind: 'primary',
       cta: true,
+      borderRadius: 'sm',
     },
   },
 ];
@@ -68,7 +96,7 @@ export const loggedOutNavBar: NavMenuProps['navItems'] = [
 export const loggedInNavBar: NavMenuProps['navItems'] = [
   // {
   //   type: 'dropdown',
-  //   label: 'About',
+  //   label: 'Profile',
   //   dropdown: [
   //     {
   //       label: 'The Company',
@@ -109,22 +137,22 @@ export const loggedInNavBar: NavMenuProps['navItems'] = [
   //     },
   //   ],
   // },
-  // {
-  //   type: 'link',
-  //   label: 'Settings',
-  //   href: '/',
-  // },
+  {
+    type: 'link',
+    label: 'Profile',
+    href: '/profile',
+  },
   {
     type: 'darkmode',
     label: 'Toggle Dark Mode',
   },
-  {
-    type: 'button',
-    label: 'Logout',
-    href: '/api/auth/logout',
-    button: {
-      kind: 'error',
-      cta: true,
-    },
-  },
+  // {
+  //   type: 'button',
+  //   label: 'Logout',
+  //   href: '/api/auth/logout',
+  //   button: {
+  //     kind: 'error',
+  //     cta: true,
+  //   },
+  // },
 ];

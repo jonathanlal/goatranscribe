@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { getAccessToken, withApiAuthRequired } from '@auth0/nextjs-auth0';
+import { makeRequestSS } from 'utils/makeRequestSS';
 
 export default withApiAuthRequired(async function (
   req: NextApiRequest,
@@ -7,23 +8,15 @@ export default withApiAuthRequired(async function (
 ) {
   const { endpoint } = req.query;
 
-  const { accessToken } = await getAccessToken(req, res);
-  const requestHeaders = new Headers();
-
-  // Set the Authorization header with the access token
-  requestHeaders.set('Authorization', `Bearer ${accessToken}`);
-  requestHeaders.set('Content-Type', 'application/json');
-
-  const response = await fetch(`${process.env.GOAT_API}${endpoint}`, {
-    headers: requestHeaders,
-    method: req.method, // Use the original request method
-    body: req.method !== 'GET' ? JSON.stringify(req.body) : undefined, // Pass the request body if it's not a GET request
+  const { data, error } = await makeRequestSS({
+    req,
+    res,
+    endpoint: endpoint as string,
   });
 
-  if (response.status === 200) {
-    const data = await response.json();
+  if (data) {
     res.status(200).json(data);
   } else {
-    res.status(response.status).json({ error: response.statusText });
+    res.status(error.status).json({ error: error.message });
   }
 });

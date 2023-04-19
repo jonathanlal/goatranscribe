@@ -13,7 +13,11 @@ export const footerItems: FooterProps['footerItems'] = [
     items: [
       {
         label: 'Login',
-        href: '/login',
+        href: '/api/auth/login',
+      },
+      {
+        label: 'Logout',
+        href: '/api/auth/logout',
       },
       // {
       //   label: 'Contact',

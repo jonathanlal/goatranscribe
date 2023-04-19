@@ -4,21 +4,15 @@ import React, { useState } from 'react';
 import H5AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
 
-// interface Subtitle {
-//   section: number;
-//   startTime: number;
-//   endTime: number;
-//   text: string;
-// }
 
 interface AudioPlayerWithSubtitlesProps {
   audioSrc: string;
-  transcript: Subtitle[];
+  subtitles: Subtitle[];
 }
 
 const AudioPlayerWithSubtitles = ({
   audioSrc,
-  transcript,
+  subtitles,
 }: AudioPlayerWithSubtitlesProps) => {
   const [currentSubtitle, setCurrentSubtitle] = useState<string>('');
 
@@ -29,7 +23,7 @@ const AudioPlayerWithSubtitles = ({
 
   const handleTimeUpdate = (currentTime: number) => {
     console.log('currentTime', currentTime);
-    const subtitle = transcript.find(
+    const subtitle = subtitles.find(
       (s) =>
         currentTime >= timeStringToSeconds(s.startTime) &&
         currentTime <= timeStringToSeconds(s.endTime)

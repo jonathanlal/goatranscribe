@@ -15,7 +15,8 @@ export default function FrostbyteLayout({ children, user }) {
         name: 'Goatranscribe',
       }}
       navMenu={{
-        navItems: user ? loggedInNavBar : loggedOutNavBar,
+        // navItems: user ? loggedInNavBar : loggedOutNavBar,
+        navItems: loggedOutNavBar,
         logo: {
           comp: <Logo />,
         },
