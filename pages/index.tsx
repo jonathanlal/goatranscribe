@@ -1,31 +1,38 @@
-import { useEffect, useRef, useState } from 'react';
-import axios from 'axios';
+import { useState } from 'react';
+import { useImmer } from 'use-immer';
+
 import AudioPlayerWithSubtitles from 'components/AudioPlayerWithSubtitles';
-import { Subtitle } from 'interfaces/Subtitle';
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { Claims, getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import FrostbyteLayout from 'components/FrostbyteLayout';
-import { FilePond, registerPlugin } from 'react-filepond';
-import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
-import 'filepond/dist/filepond.min.css';
-import { Button, H, P, styled } from 'frostbyte';
+
+import { Button, H, P, styled, useFrostbyte } from 'frostbyte';
 import Head from 'next/head';
+
 import { tryGoat } from 'utils/try';
+import styles from 'styles/Home.module.css';
+import {
+  UploadStatus,
+  UploadStatusFields,
+  UploadStatusKey,
+} from 'interfaces/UploadStatus';
+import { TranscribeResponse } from 'interfaces/TranscribeResponse';
+import { useDropzone } from 'react-dropzone';
+import Link from 'next/link';
+import { LandscapeBg } from 'components/LandscapeBg';
+import { Dropzone } from 'components/Dropzone';
+import { Features } from 'components/Features';
 
-import H5AudioPlayer from 'react-h5-audio-player';
-import 'react-h5-audio-player/lib/styles.css';
-
-export const getServerSideProps = withPageAuthRequired({
-  async getServerSideProps(ctx) {
-    const session = await getSession(ctx.req, ctx.res);
-    return {
-      props: {
-        user: session.user,
-      },
-    };
-  },
-});
+//this will reirect them to login if they are not logged in!
+// export const getServerSideProps = withPageAuthRequired({
+//   async getServerSideProps(ctx) {
+//     const session = await getSession(ctx.req, ctx.res);
+//     return {
+//       props: {
+//         user: session.user,
+//       },
+//     };
+//   },
+// });
 
 type HomePageProps = {
   user: Claims;
@@ -37,226 +44,202 @@ const Hero = styled('div', {
   alignItems: 'center',
   paddingTop: '3vh',
   textAlign: 'center',
-  // justifyContent: 'center',
+  justifyContent: 'center',
   position: 'relative',
-  width: '100%',
-  height: '90vh',
   zIndex: 1,
+  overflow: 'hidden',
+});
 
-  '&::before': {
-    content: '',
-    position: 'absolute',
-    backgroundImage: 'url(/mountains-light.svg)',
-    backgroundAttachment: 'fixed',
-    backgroundSize: 'cover',
-    opacity: 0.2,
-    zIndex: -1,
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-    overflow: 'hidden',
-  },
+const StyledLink = styled(Link, {
+  color: '$black',
+  fontWeight: 'bold',
+});
+
+const TryContainer = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  width: '100%',
+  marginTop: '30px',
+  marginBottom: '15px',
+  // background: 'rgb(153, 86, 213, 0.7)',
+  borderRadius: '5px',
+  // boxShadow: '$colors$purple6 0px 8px 5px 3px',
+});
+
+const ErrorPanel = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '5px',
+  gap: '10px',
+  padding: '20px',
+  boxShadow: '$colors$tomato7 0px 0px 3px 2px',
+  background: '$tomato4',
+  color: '$tomato9',
+  marginBottom: '20px',
 });
 
 const HomePage = ({ user }: HomePageProps) => {
-  const [isUploading, setIsUploading] = useState(false);
-  // const fileInputRef = useRef<HTMLInputElement>(null);
-  const [progress, setProgress] = useState(0);
-  const [fileSize, setFileSize] = useState(0);
-  const [url, setUrl] = useState<string>(null);
-  const [uploadReady, setUploadReady] = useState(false);
-  const [testFile, setTestFile] = useState<string>(null);
-  const [data, setData] = useState<{
-    url: {
-      audio: string;
-      txt?: string;
-      srt: string;
-    };
-    subtitles: Subtitle[];
-    transcript: string;
-  }>(null);
-  const [files, setFiles] = useState([]);
-  registerPlugin(FilePondPluginFileValidateType);
-  registerPlugin(FilePondPluginFileValidateSize);
+  const [response, setResponse] = useState<TranscribeResponse>(null);
+  const [status, setStatus] = useImmer<UploadStatus[]>([]);
+  const [hasStarted, setHasStarted] = useState(false);
+  console.log('status', status);
+
+  const dropState = useDropzone({
+    maxFiles: 1,
+    multiple: false,
+    onError: (err) => {
+      console.log('err', err);
+      //show toast
+    },
+    // autoFocus: true,
+    accept: {
+      'audio/mpeg': ['.mp3'],
+      'audio/wav': ['.wav'],
+      'video/mp4': ['.mp4'],
+      'video/mpeg': ['.mpeg'],
+    },
+    disabled: Object.keys(status).length > 0,
+  });
+
+  const {
+    acceptedFiles,
+    fileRejections,
+    getRootProps,
+    getInputProps,
+    isFocused,
+    isDragAccept,
+    isDragReject,
+  } = dropState;
+
+  const updateStatus = (
+    key: UploadStatusKey,
+    statusUpdate: UploadStatusFields
+  ) => {
+    setStatus((statuses) => {
+      const newStatus = statuses[key];
+      if (newStatus) {
+        newStatus.currentStatus = statusUpdate.currentStatus;
+        newStatus.description = statusUpdate.description;
+        newStatus.timeTaken = statusUpdate.timeTaken;
+      } else {
+        return {
+          ...statuses,
+          [key]: statusUpdate,
+        };
+      }
+    });
+  };
 
   const handleSubmit = async () => {
-    console.log('submitting');
-    const file = files[0].file;
-    console.log('file', file);
-    setIsUploading(true);
+    setHasStarted(true);
     await tryGoat({
-      file,
-      setProgress,
-      setIsUploading,
-      setData,
+      file: acceptedFiles[0],
+      setResponse,
+      updateStatus,
     });
-    // setTestFile(url);
-    // mp3, mp4, mpeg, mpga, m4a, wav, and webm
+    setHasStarted(false);
   };
 
   return (
     <>
-      {testFile && (
-        <H5AudioPlayer
-          src={testFile}
-          // onListen={(event) => {
-          //   const audioElement = event.target as HTMLAudioElement;
-          //   handleTimeUpdate(audioElement.currentTime);
-          // }}
-        />
-      )}
       <Head>
         <title>Transcribe audio or video to text online</title>
       </Head>
-      <FrostbyteLayout user={user}>
-        <Hero>
-          <div
-            style={{
-              maxWidth: '900px',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              // backgroundColor: 'pink',
-              height: '90%',
-              // justifyContent: 'center',
-            }}
-          >
-            <H
-              responsive="xs"
-              as="h3"
-              color="purple11"
-              style={{
-                lineHeight: 1,
-              }}
-            >
-              <span>
-                Convert audio to text online with <i>Goatranscribe</i>
-              </span>
-            </H>
-            <br />
-            <P
-              responsive="xs"
-              color="purple8"
-              style={{
-                lineHeight: 1.2,
-              }}
-            >
-              AI generated transcripts, summaries and translations with{' '}
-              <span style={{ fontWeight: 700 }}>ChatGPT-4</span>
-            </P>
 
-            <br />
-            <br />
+      <FrostbyteLayout user={user}>
+        <LandscapeBg>
+          <Hero isDarkTheme={false}>
+            <div
+              className={`${styles.birdContainer} ${styles.birdContainerOne}`}
+            >
+              <div className={`${styles.bird} ${styles.birdOne}`}></div>
+            </div>
+
             <div
               style={{
+                maxWidth: '900px',
                 display: 'flex',
                 flexDirection: 'column',
-                // height: '100%',
-                width: '100%',
-                // height: '300px',
-                // maxWidth: '600px',
-                // minWidth: '300px',
-                // backgroundColor: 'blue',
+                alignItems: 'center',
+                padding: '0 20px',
+                // backgroundColor: 'pink',
               }}
             >
-              <FilePond
-                className="test"
-                files={files}
-                acceptedFileTypes={['audio/*', 'video/*']}
-                labelFileTypeNotAllowed="File type not allowed"
-                allowMultiple={false}
-                onupdatefiles={setFiles}
-                checkValidity={true}
-                labelIdle='Drag & drop file anywhere,<br/> or <span class="filepond--label-action">click to browse</span>'
-                credits={false}
-                // stylePanelLayout="integrated"
-                dropOnPage={true}
-                dropOnElement={false}
-                dropValidation={true}
-                onaddfile={() => {
-                  setUploadReady(true);
+              <H
+                responsive="xs"
+                as="h3"
+                color="purple11"
+                style={{
+                  lineHeight: 1,
                 }}
-                maxFileSize="24MB" //in try they can upload any file size
-                // labelButtonProcessItem="<button>Transcribe</button>"
-                // stylePanelLayout
-              />
-              {uploadReady && (
-                <Button
-                  type="button"
-                  onClick={handleSubmit}
-                  disabled={
-                    !files.length ||
-                    (files.length &&
-                      files.some(
-                        (file) =>
-                          file.fileType.indexOf('audio') === -1 &&
-                          file.fileType.indexOf('video') === -1
-                      ))
-                  }
-                >
-                  Transcribe
-                </Button>
-              )}
-              <p>Go to app to transcribe for more than 1 minute</p>
+              >
+                <span>
+                  Convert audio to text online with <i>Goatranscribe</i>
+                </span>
+              </H>
+              <br />
+              <P
+                responsive="xs"
+                color="purple8"
+                style={{
+                  lineHeight: 1.2,
+                }}
+              >
+                AI generated transcripts, subtitles, summaries and translations
+                with <span style={{ fontWeight: 700 }}>ChatGPT-4</span>
+              </P>
+
+              <TryContainer>
+                {fileRejections.length > 0 && (
+                  <ErrorPanel>
+                    <P color="tomato9" size="20" weight="600">
+                      Can't transcribe that file type 😞
+                    </P>
+                    <P color="tomato10" size="16">
+                      Allowed types: .mp3 .mp4 .mpeg .wav
+                    </P>
+                  </ErrorPanel>
+                )}
+
+                {!response && (
+                  <Dropzone dropState={dropState} status={status} />
+                )}
+
+                {response && (
+                  <AudioPlayerWithSubtitles
+                    audioSrc={response.url.audio}
+                    subtitles={response.subtitles}
+                    transcript={response.transcript}
+                  />
+                )}
+
+                {acceptedFiles.length > 0 && !response && (
+                  <Button
+                    type="button"
+                    onClick={handleSubmit}
+                    loading={hasStarted}
+                    css={{
+                      display: 'grid',
+                      placeItems: 'center', //fix loading position
+                      marginTop: '20px',
+                    }}
+                  >
+                    Transcribe
+                  </Button>
+                )}
+              </TryContainer>
+
+              <P color="mauve8">
+                <StyledLink href={'/login'}>Go to app</StyledLink> to transcribe
+                for <i>more than 1 minute</i>
+              </P>
             </div>
-          </div>
-        </Hero>
-        {user && (
-          <div>
-            <img src={user.picture} alt={user.name} />
-            <h2>{user.name}</h2>
-            <p>{user.sid.toString()}</p>
-            <p>{JSON.stringify(user)}</p>
-          </div>
-        )}
-        <h1>Upload File</h1>
-        {isUploading && (
-          <>
-            <p>Uploading...</p>
-            <progress id="progress-bar" value={progress} max="100"></progress>
-          </>
-        )}
-        {url && (
-          <a href={url} target="_blank" rel="noreferrer">
-            Link
-          </a>
-        )}
-        {/* <button
-        onClick={async () => {
-          await axios.post('/api/goat/uploadComplete', {
-            entryKey: 'NSaVLLIBo1KodOy9Fbi',
-          });
-        }}
-      >
-        Test
-      </button> */}
-        {data && (
-          <>
-            <AudioPlayerWithSubtitles
-              audioSrc={data.url.audio}
-              subtitles={data.subtitles}
-            />
+          </Hero>
+        </LandscapeBg>
 
-            <p>{data.transcript}</p>
-          </>
-        )}
-
-        <button
-          type="button"
-          onClick={handleSubmit}
-          disabled={
-            !files.length ||
-            (files.length &&
-              files.some(
-                (file) =>
-                  file.fileType.indexOf('audio') === -1 &&
-                  file.fileType.indexOf('video') === -1
-              ))
-          }
-        >
-          Transcribe
-        </button>
+        <Features></Features>
       </FrostbyteLayout>
     </>
   );

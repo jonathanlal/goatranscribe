@@ -6,6 +6,7 @@ const CTABtn = styled('div', {
   alignItems: 'center',
   gap: 10,
   fontWeight: 600,
+  minWidth: 80,
   // color: '$primary',
 
   // '&:hover': {

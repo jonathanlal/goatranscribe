@@ -21,7 +21,6 @@ export const getServerSideProps = withPageAuthRequired({
       res,
       endpoint: 'userTranscripts',
     });
-    // const filesData = await response.json();
 
     return {
       props: {
@@ -44,20 +43,14 @@ type HomePageProps = {
 const Profile = ({ user, files }: HomePageProps) => {
   return (
     <FrostbyteLayout user={user}>
-      {/* {user && (
+      {user && (
         <div>
           <img src={user.picture} alt={user.name} />
           <h2>{user.name}</h2>
           <p>{user.sid.toString()}</p>
           <p>{JSON.stringify(user)}</p>
-          <h2>Transcripts:</h2>
-          <ul>
-            {files.map((file, index) => (
-              <li key={index}>{file}</li>
-            ))}
-          </ul>
         </div>
-      )} */}
+      )}
       <Table>
         <Thead>
           <Tr>

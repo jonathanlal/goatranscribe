@@ -6,7 +6,7 @@ body {
   font-size: 18px;
 }
 
-#__next {
+/* #__next {
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -15,33 +15,4 @@ body {
   display: flex;
   flex-direction: column;
   min-height: 100%;
-}
-
-/* .test {
-  background-color: blue;
-  color: red;
-  height: '400px !important';
 } */
-
-/* .filepond--root {
-  height: '400px !important';
-} */
-.filepond--root,
-.filepond--root .filepond--drop-label,
-.filepond--panel-root,
-.filepond--pannel {
-  height: 300px;
-  margin-bottom: 0 !important;
-  border-radius: 0 !important;
-  /* opacity: 1 !important; */
-  background-color: unset !important;
-}
-
-.filepond--drip {
-  background: rgb(153, 86, 213) !important;
-  opacity: 0.1 !important;
-}
-.filepond--drop-label {
-  color: rgb(138, 63, 204) !important;
-  font-size: 20px !important;
-}
