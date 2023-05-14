@@ -8,14 +8,15 @@ export default withApiAuthRequired(async function (
 ) {
   const { endpoint } = req.query;
 
-  const { data, error } = await makeRequestSS({
+  const { data, error, status } = await makeRequestSS({
     req,
     res,
+    params: req.query,
     endpoint: endpoint as string,
   });
 
   if (data) {
-    res.status(200).json(data);
+    res.status(status).json(data);
   } else {
     res.status(error.status).json({ error: error.message });
   }

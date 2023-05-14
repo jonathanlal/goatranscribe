@@ -1,13 +1,10 @@
 import { useState } from 'react';
 import { useImmer } from 'use-immer';
-
 import AudioPlayerWithSubtitles from 'components/AudioPlayerWithSubtitles';
-import { Claims, getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
+import { Claims, getSession } from '@auth0/nextjs-auth0';
 import FrostbyteLayout from 'components/FrostbyteLayout';
-
-import { Button, H, P, styled, useFrostbyte } from 'frostbyte';
+import { Button, H, P, styled } from 'frostbyte';
 import Head from 'next/head';
-
 import { tryGoat } from 'utils/try';
 import styles from 'styles/Home.module.css';
 import {
@@ -16,23 +13,22 @@ import {
   UploadStatusKey,
 } from 'interfaces/UploadStatus';
 import { TranscribeResponse } from 'interfaces/TranscribeResponse';
-import { useDropzone } from 'react-dropzone';
 import Link from 'next/link';
 import { LandscapeBg } from 'components/LandscapeBg';
 import { Dropzone } from 'components/Dropzone';
 import { Features } from 'components/Features';
+import { COST_PER_MINUTE } from 'utils/constants';
+import { GetServerSidePropsContext } from 'next';
 
-//this will reirect them to login if they are not logged in!
-// export const getServerSideProps = withPageAuthRequired({
-//   async getServerSideProps(ctx) {
-//     const session = await getSession(ctx.req, ctx.res);
-//     return {
-//       props: {
-//         user: session.user,
-//       },
-//     };
-//   },
-// });
+export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+  const session = await getSession(ctx.req, ctx.res);
+
+  return {
+    props: {
+      user: session?.user || null,
+    },
+  };
+}
 
 type HomePageProps = {
   user: Claims;
@@ -66,52 +62,11 @@ const TryContainer = styled('div', {
   // boxShadow: '$colors$purple6 0px 8px 5px 3px',
 });
 
-const ErrorPanel = styled('div', {
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  borderRadius: '5px',
-  gap: '10px',
-  padding: '20px',
-  boxShadow: '$colors$tomato7 0px 0px 3px 2px',
-  background: '$tomato4',
-  color: '$tomato9',
-  marginBottom: '20px',
-});
-
 const HomePage = ({ user }: HomePageProps) => {
   const [response, setResponse] = useState<TranscribeResponse>(null);
   const [status, setStatus] = useImmer<UploadStatus[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
-  console.log('status', status);
-
-  const dropState = useDropzone({
-    maxFiles: 1,
-    multiple: false,
-    onError: (err) => {
-      console.log('err', err);
-      //show toast
-    },
-    // autoFocus: true,
-    accept: {
-      'audio/mpeg': ['.mp3'],
-      'audio/wav': ['.wav'],
-      'video/mp4': ['.mp4'],
-      'video/mpeg': ['.mpeg'],
-    },
-    disabled: Object.keys(status).length > 0,
-  });
-
-  const {
-    acceptedFiles,
-    fileRejections,
-    getRootProps,
-    getInputProps,
-    isFocused,
-    isDragAccept,
-    isDragReject,
-  } = dropState;
+  const [files, setFiles] = useState<File[]>([]);
 
   const updateStatus = (
     key: UploadStatusKey,
@@ -135,7 +90,7 @@ const HomePage = ({ user }: HomePageProps) => {
   const handleSubmit = async () => {
     setHasStarted(true);
     await tryGoat({
-      file: acceptedFiles[0],
+      file: files[0],
       setResponse,
       updateStatus,
     });
@@ -192,19 +147,13 @@ const HomePage = ({ user }: HomePageProps) => {
               </P>
 
               <TryContainer>
-                {fileRejections.length > 0 && (
-                  <ErrorPanel>
-                    <P color="tomato9" size="20" weight="600">
-                      Can't transcribe that file type 😞
-                    </P>
-                    <P color="tomato10" size="16">
-                      Allowed types: .mp3 .mp4 .mpeg .wav
-                    </P>
-                  </ErrorPanel>
-                )}
-
                 {!response && (
-                  <Dropzone dropState={dropState} status={status} />
+                  <Dropzone
+                    setFiles={setFiles}
+                    status={status}
+                    maxFiles={1}
+                    multiple={false}
+                  />
                 )}
 
                 {response && (
@@ -215,7 +164,7 @@ const HomePage = ({ user }: HomePageProps) => {
                   />
                 )}
 
-                {acceptedFiles.length > 0 && !response && (
+                {files.length > 0 && !response && (
                   <Button
                     type="button"
                     onClick={handleSubmit}
@@ -239,7 +188,11 @@ const HomePage = ({ user }: HomePageProps) => {
           </Hero>
         </LandscapeBg>
 
-        <Features></Features>
+        <Features>
+          <h1>No bullshit, pay as you go.</h1>
+          <h1> Transcriptions at ${COST_PER_MINUTE} per minute ($1 an hour)</h1>
+          <h1>Human level accuracy</h1>
+        </Features>
       </FrostbyteLayout>
     </>
   );

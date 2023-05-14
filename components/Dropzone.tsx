@@ -1,7 +1,7 @@
 import { CheckCircledIcon, UploadIcon } from '@radix-ui/react-icons';
 import { P, styled, useFrostbyte } from 'frostbyte';
 import { UploadStatus } from 'interfaces/UploadStatus';
-import { DropzoneState } from 'react-dropzone';
+import { DropzoneState, useDropzone } from 'react-dropzone';
 import { formatBytes } from 'utils/formatBytes';
 import Spinner from './Spinner';
 
@@ -128,14 +128,53 @@ const DropzoneInfo = styled('div', {
   },
 });
 
+const ErrorPanel = styled('div', {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: '5px',
+  gap: '10px',
+  padding: '20px',
+  boxShadow: '$colors$tomato7 0px 0px 3px 2px',
+  background: '$tomato4',
+  color: '$tomato9',
+  marginBottom: '20px',
+});
+
 export const Dropzone = ({
-  dropState,
   status,
+  maxFiles,
+  multiple,
+  setFiles,
 }: {
-  dropState: DropzoneState;
   status: UploadStatus[];
+  maxFiles: number;
+  multiple: boolean;
+  setFiles: (files: File[]) => void;
 }) => {
   const { isDarkTheme } = useFrostbyte();
+  const dropState = useDropzone({
+    maxFiles,
+    multiple,
+    onError: (err) => {
+      console.log('err', err);
+      //show toast
+    },
+    onDropAccepted(files, event) {
+      console.log('files', files);
+      setFiles(files);
+    },
+    // autoFocus: true,
+    accept: {
+      'audio/mpeg': ['.mp3'],
+      'audio/wav': ['.wav'],
+      'video/mp4': ['.mp4'],
+      'video/mpeg': ['.mpeg'],
+    },
+    disabled: Object.keys(status).length > 0,
+  });
+
   const {
     acceptedFiles,
     fileRejections,
@@ -148,43 +187,65 @@ export const Dropzone = ({
 
   const hasFiles = acceptedFiles.length > 0;
 
-  const file = acceptedFiles[0];
+  const singleFile = acceptedFiles[0];
 
   return (
-    <Container {...getRootProps()} hasFiles={hasFiles}>
-      {file && (
-        <FileItemStatus>
-          <p>{file.name}</p>
-          <p>{formatBytes(file.size)}</p>
-        </FileItemStatus>
+    <>
+      {fileRejections.length > 0 && (
+        <ErrorPanel>
+          <P color="tomato9" size="20" weight="600">
+            Can't transcribe that file type 😞
+          </P>
+          <P color="tomato10" size="16">
+            Allowed types: .mp3 .mp4 .mpeg .wav
+          </P>
+        </ErrorPanel>
       )}
 
-      {status && (
-        <StatusList>
-          {Object.keys(status).map((key) => (
-            <StatusListItem key={key}>
-              <p>
-                {status[key].description}{' '}
-                {status[key]?.timeTaken && `(${status[key]?.timeTaken}s)`}
-              </p>
-              {status[key].currentStatus === 'loading' ? (
-                <Spinner />
-              ) : (
-                <StyledCheckCircledIcon />
-              )}
-            </StatusListItem>
+      <Container {...getRootProps()} hasFiles={hasFiles}>
+        {maxFiles === 1 && singleFile && (
+          <FileItemStatus>
+            <p>{singleFile.name}</p>
+            <p>{formatBytes(singleFile.size)}</p>
+          </FileItemStatus>
+        )}
+        {maxFiles > 1 &&
+          hasFiles &&
+          acceptedFiles.map((file) => (
+            <FileItemStatus>
+              <p>{file.name}</p>
+              <p>{formatBytes(file.size)}</p>
+            </FileItemStatus>
           ))}
-        </StatusList>
-      )}
-      <input {...getInputProps()} />
-      {!hasFiles && (
-        <DropzoneInfo isDarkTheme={isDarkTheme}>
-          <span>
-            Drag & drop a file here, <br /> or click to select one.
-          </span>
-          <UploadIcon width={25} height={25} />
-        </DropzoneInfo>
-      )}
-    </Container>
+
+        {status && (
+          <StatusList>
+            {Object.keys(status).map((key) => (
+              <StatusListItem key={key}>
+                <p>
+                  {status[key].description}{' '}
+                  {status[key]?.timeTaken && `(${status[key]?.timeTaken}s)`}
+                </p>
+                {status[key].currentStatus === 'loading' ? (
+                  <Spinner />
+                ) : (
+                  <StyledCheckCircledIcon />
+                )}
+              </StatusListItem>
+            ))}
+          </StatusList>
+        )}
+        <input {...getInputProps()} />
+        {!hasFiles && (
+          <DropzoneInfo isDarkTheme={isDarkTheme}>
+            <span>
+              Drag & drop {multiple ? 'files' : 'a file here'}, <br /> or click
+              to select{multiple ? '.' : ' one.'}
+            </span>
+            <UploadIcon width={25} height={25} />
+          </DropzoneInfo>
+        )}
+      </Container>
+    </>
   );
 };

@@ -1,17 +1,42 @@
-import { NavMenuProps, styled } from 'frostbyte';
+import { Avatar, NavMenuProps, styled } from 'frostbyte';
 import { EnterIcon } from '@radix-ui/react-icons';
+import { Claims } from '@auth0/nextjs-auth0';
+import Spinner from 'components/Spinner';
 
 const CTABtn = styled('div', {
-  display: 'flex',
+  display: 'grid',
+  gridTemplateColumns: 'auto 1fr',
   alignItems: 'center',
-  gap: 10,
+  justifyContent: 'center',
   fontWeight: 600,
-  minWidth: 80,
-  // color: '$primary',
+  minWidth: 65,
 
-  // '&:hover': {
-  //   color: '$primaryContrast',
-  // },
+  variants: {
+    loading: {
+      true: {
+        gridTemplateColumns: 'auto',
+      },
+    },
+  },
+});
+
+const WalletSvg = styled('svg', {
+  // color: '$purple12',
+  color: '$purple11',
+  marginRight: 10,
+});
+
+const Balance = styled('span', {
+  color: '$green9',
+  fontWeight: 700,
+
+  variants: {
+    isZero: {
+      true: {
+        color: '$purple11',
+      },
+    },
+  },
 });
 export const loggedOutNavBar: NavMenuProps['navItems'] = [
   // {
@@ -94,66 +119,121 @@ export const loggedOutNavBar: NavMenuProps['navItems'] = [
   },
 ];
 
-export const loggedInNavBar: NavMenuProps['navItems'] = [
-  // {
-  //   type: 'dropdown',
-  //   label: 'Profile',
-  //   dropdown: [
-  //     {
-  //       label: 'The Company',
-  //       description:
-  //         'children children srd a children children children children children children children children children',
-  //       href: '/',
-  //     },
-  //     {
-  //       label: 'Our Team',
-  //       href: '/about',
-  //     },
-  //     {
-  //       label: 'Our Team',
-  //       description:
-  //         'children children srd a children children children children children children children children children',
-  //       href: '/about',
-  //     },
-  //     {
-  //       label: 'Our Team',
-  //       href: '/about',
-  //     },
-  //   ],
-  // },
-  // {
-  //   type: 'dropdown',
-  //   label: 'Terms and Conditions',
-  //   dropdown: [
-  //     {
-  //       label: 'Privacy Policy',
-  //       description:
-  //         'children children srd a children children children children children children children children children',
-  //       href: '/',
-  //     },
-  //     {
-  //       label: 'Terms of Use',
-  //       description: 'This is a description2',
-  //       href: '/about',
-  //     },
-  //   ],
-  // },
-  {
-    type: 'link',
-    label: 'Profile',
-    href: '/profile',
-  },
-  {
-    type: 'darkmode',
-    label: 'Toggle Dark Mode',
-  },
-  // {
-  //   type: 'button',
-  //   label: 'Logout',
-  //   href: '/api/auth/logout',
-  //   button: {
-  //     kind: 'error',
-  //     cta: true,
-  //   },
-  // },
-];
+export const loggedInNavBar = (
+  user: Claims,
+  balance: number
+): NavMenuProps['navItems'] => {
+  return [
+    {
+      type: 'link', //need a new type avatar
+      label: (
+        <Avatar src={user.picture} alt={user.name} fallBackText={user.name} />
+      ),
+      href: '/transcripts',
+    },
+    {
+      type: 'darkmode',
+      label: 'Toggle Dark Mode',
+    },
+    {
+      href: '/balance',
+      type: 'button',
+      label: (
+        <CTABtn loading={balance === undefined}>
+          {balance !== undefined ? (
+            <>
+              <WalletSvg
+                xmlns="http://www.w3.org/2000/svg"
+                width="30"
+                height="30"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M20 12V8H6a2 2 0 01-2-2c0-1.1.9-2 2-2h12v4" />
+                <path d="M4 6v12c0 1.1.9 2 2 2h14v-4" />
+                <path d="M18 12a2 2 0 00-2 2c0 1.1.9 2 2 2h4v-4h-4z" />
+              </WalletSvg>
+              <Balance isZero={balance === 0}>${balance}</Balance>
+            </>
+          ) : (
+            <Spinner height={30} width={30} />
+          )}
+        </CTABtn>
+      ),
+      button: {
+        color: 'purple5',
+        cta: true,
+        // outlined: true,
+        borderRadius: 'sm',
+      },
+    },
+  ];
+};
+
+// [
+// {
+//   type: 'dropdown',
+//   label: 'Profile',
+//   dropdown: [
+//     {
+//       label: 'The Company',
+//       description:
+//         'children children srd a children children children children children children children children children',
+//       href: '/',
+//     },
+//     {
+//       label: 'Our Team',
+//       href: '/about',
+//     },
+//     {
+//       label: 'Our Team',
+//       description:
+//         'children children srd a children children children children children children children children children',
+//       href: '/about',
+//     },
+//     {
+//       label: 'Our Team',
+//       href: '/about',
+//     },
+//   ],
+// },
+// {
+//   type: 'dropdown',
+//   label: 'Terms and Conditions',
+//   dropdown: [
+//     {
+//       label: 'Privacy Policy',
+//       description:
+//         'children children srd a children children children children children children children children children',
+//       href: '/',
+//     },
+//     {
+//       label: 'Terms of Use',
+//       description: 'This is a description2',
+//       href: '/about',
+//     },
+//   ],
+// },
+// {
+//   type: 'link',
+//   label: 'Profile',
+//   href: '/profile',
+// },
+// {
+//   type: 'darkmode',
+//   label: 'Toggle Dark Mode',
+// },
+// {
+//   type: 'button',
+//   label: 'Logout',
+//   href: '/api/auth/logout',
+//   button: {
+//     kind: 'error',
+//     cta: true,
+//   },
+// },
+// ];

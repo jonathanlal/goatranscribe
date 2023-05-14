@@ -6,6 +6,7 @@ import {
 import toWav from 'audiobuffer-to-wav';
 import { TranscribeResponse } from 'interfaces/TranscribeResponse';
 import { UploadStatus, UploadStatusKey } from 'interfaces/UploadStatus';
+import { getAudioDurationFromFile } from './getAudioDurationFromFile';
 
 async function getFirstMinute(audioFile: File): Promise<File> {
   const audioContext = new window.AudioContext();
@@ -190,10 +191,11 @@ export const tryGoat = async ({
     // await handleUploadData(blobClient, newFile, fileSize, setProgress);
     await handleUploadData(blobClient, newFile, fileSize);
     // setIsUploading(false);
-
+    const duration = await getAudioDurationFromFile(newFile);
     await blobClient.setMetadata({
       fileName,
       fileExtension,
+      duration: duration.toString(),
     });
 
     await postUploadComplete(entryKey);

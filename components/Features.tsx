@@ -1,4 +1,5 @@
 import { styled, useFrostbyte } from 'frostbyte';
+import { ReactNode } from 'react';
 
 const FeaturesContainer = styled('div', {
   display: 'flex',
@@ -54,12 +55,10 @@ const FeaturesContainer = styled('div', {
   //   },
 });
 
-export const Features = () => {
+export const Features = ({ children }: { children: ReactNode }) => {
   const { isDarkTheme } = useFrostbyte();
 
   return (
-    <FeaturesContainer isDarkTheme={isDarkTheme}>
-      <h1>Features</h1>
-    </FeaturesContainer>
+    <FeaturesContainer isDarkTheme={isDarkTheme}>{children}</FeaturesContainer>
   );
 };
