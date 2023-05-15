@@ -126,7 +126,7 @@ const HomePage = ({ user }: HomePageProps) => {
                 responsive="xs"
                 as="h3"
                 color="purple11"
-                style={{
+                css={{
                   lineHeight: 1,
                 }}
               >

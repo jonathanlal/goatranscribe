@@ -201,7 +201,7 @@ const AmountBox = ({
     // const maxLength = e.target.maxLength;
     const newValue = value.slice(0, maxLength);
 
-    setInputValue(newValue);
+    setInputValue(parseFloat(newValue));
     if (newValue === '') {
       debouncedOnClick(0);
     } else {

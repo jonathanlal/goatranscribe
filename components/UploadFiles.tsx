@@ -10,8 +10,8 @@ import { UploadStatus } from 'interfaces/UploadStatus';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { getAudioDurationFromFile } from 'utils/getAudioDurationFromFile';
-import { COST_PER_SECOND, COST_PER_SECOND_WHISPER } from 'utils/constants';
-import { formatDuration } from 'date-fns';
+// import { COST_PER_SECOND, COST_PER_SECOND_WHISPER } from 'utils/constants';
+// import { formatDuration } from 'date-fns';
 // import { formatDuration } from 'utils/formatDuration';
 // import { formatDuration } from 'date-fns';
 
