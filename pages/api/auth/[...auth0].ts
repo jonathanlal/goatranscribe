@@ -11,10 +11,10 @@ export default handleAuth({
       // Add the `offline_access` scope to also get a Refresh Token
       scope: 'openid profile email read:messages offline_access', // or AUTH0_SCOPE
     },
-    returnTo: 'http://localhost:3000/transcribe', // or AUTH0_REDIRECT_URI
+    returnTo: `${process.env.AUTH0_BASE_URL}/transcribe`, // or AUTH0_REDIRECT_URI
   }),
   logout: handleLogout({
-    returnTo: 'http://localhost:3000',
+    returnTo: process.env.AUTH0_BASE_URL,
   }),
   onError(req, res, error) {
     console.log('error', error);
