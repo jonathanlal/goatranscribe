@@ -1,9 +1,10 @@
 import { CheckCircledIcon, UploadIcon } from '@radix-ui/react-icons';
 import { P, styled, useFrostbyte } from 'frostbyte';
-import { UploadStatus } from 'interfaces/UploadStatus';
+import { MultipleUploadsStatus, UploadStatus } from 'interfaces/UploadStatus';
 import { DropzoneState, useDropzone } from 'react-dropzone';
 import { formatBytes } from 'utils/formatBytes';
 import Spinner from './Spinner';
+import { useEffect } from 'react';
 
 const Container = styled('div', {
   flex: 1,
@@ -143,15 +144,19 @@ const ErrorPanel = styled('div', {
 });
 
 export const Dropzone = ({
+  hasFinishedUploading,
   status,
   maxFiles,
   multiple,
   setFiles,
+  multipleStatus,
 }: {
-  status: UploadStatus[];
+  hasFinishedUploading?: boolean;
+  status?: UploadStatus[];
   maxFiles: number;
   multiple: boolean;
   setFiles: (files: File[]) => void;
+  multipleStatus?: MultipleUploadsStatus;
 }) => {
   const { isDarkTheme } = useFrostbyte();
   const dropState = useDropzone({
@@ -165,6 +170,7 @@ export const Dropzone = ({
       console.log('files', files);
       setFiles(files);
     },
+
     // autoFocus: true,
     accept: {
       'audio/mpeg': ['.mp3'],
@@ -172,7 +178,9 @@ export const Dropzone = ({
       'video/mp4': ['.mp4'],
       'video/mpeg': ['.mpeg'],
     },
-    disabled: Object.keys(status).length > 0,
+    disabled: status
+      ? status.length > 0
+      : Object.keys(multipleStatus).length > 0,
   });
 
   const {
@@ -185,9 +193,20 @@ export const Dropzone = ({
     isDragReject,
   } = dropState;
 
+  useEffect(() => {
+    if (hasFinishedUploading) {
+      acceptedFiles.length = 0;
+      acceptedFiles.splice(0, acceptedFiles.length);
+      setFiles([]);
+    }
+  }, [hasFinishedUploading]);
+
   const hasFiles = acceptedFiles.length > 0;
 
   const singleFile = acceptedFiles[0];
+
+  const hasMultipleUploadStarted =
+    multipleStatus && Object.keys(multipleStatus).length > 0;
 
   return (
     <>
@@ -209,16 +228,43 @@ export const Dropzone = ({
             <p>{formatBytes(singleFile.size)}</p>
           </FileItemStatus>
         )}
+
+        {maxFiles > 1 && hasFiles && !hasMultipleUploadStarted && (
+          <>
+            {acceptedFiles.map((file) => (
+              <FileItemStatus key={file.name}>
+                <p>{file.name}</p>
+                <p>{formatBytes(file.size)}</p>
+              </FileItemStatus>
+            ))}
+          </>
+        )}
+
         {maxFiles > 1 &&
           hasFiles &&
-          acceptedFiles.map((file) => (
-            <FileItemStatus>
-              <p>{file.name}</p>
-              <p>{formatBytes(file.size)}</p>
-            </FileItemStatus>
-          ))}
+          hasMultipleUploadStarted &&
+          Object.keys(multipleStatus).map((entryId) => {
+            const { fileName, fileSize, uploadProgress } =
+              multipleStatus[entryId];
+            return (
+              <FileItemStatus key={entryId}>
+                <p>{fileName}</p>
+                <p
+                  style={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    gap: '10px',
+                  }}
+                >
+                  {uploadProgress != 100 && <Spinner />}
+                  {uploadProgress}%
+                </p>
+              </FileItemStatus>
+            );
+          })}
 
-        {status && (
+        {status && status.length > 0 && (
           <StatusList>
             {Object.keys(status).map((key) => (
               <StatusListItem key={key}>

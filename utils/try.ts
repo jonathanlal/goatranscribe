@@ -55,10 +55,12 @@ interface SasUrlResponse {
   entryKey: string;
 }
 
+//redo this shit to use rtk query
 async function postSasUrl(): Promise<SasUrlResponse> {
   try {
     const response = await fetch('/api/try/sasUrl', {
       method: 'POST',
+      body: JSON.stringify({ numFiles: 1 }),
     });
     const data = await response.json();
     return data.data;

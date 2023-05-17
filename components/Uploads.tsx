@@ -2,7 +2,10 @@ import { Button, CheckBox, H, P, styled, useFrostbyte } from 'frostbyte';
 import { CustomTable } from './CustomTable';
 import { formatDistanceToNow, formatDuration, parseISO } from 'date-fns';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-import { useGetUploadsQuery } from 'store/services/upload';
+import {
+  useGetUploadsQuery,
+  useLazyGetUploadsQuery,
+} from 'store/services/upload';
 import { formatBytes } from 'utils/formatBytes';
 import { useImmer } from 'use-immer';
 import { useEffect, useState } from 'react';
@@ -19,6 +22,7 @@ import {
   useTranscribeEntriesMutation,
 } from 'store/services/transcribe';
 import { ca } from 'date-fns/locale';
+import Spinner from './Spinner';
 
 // const fadeIn = keyframes({
 //     from: {
@@ -86,7 +90,6 @@ const PrimaryPanel = styled('div', {
 // });
 
 export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
-  // const { data: uploads, isFetching, isSuccess } = useGetUploadsQuery();
   const dispatch = useAppDispatch();
   const { uploads } = useAppSelector((state) => state.user);
   const router = useRouter();
@@ -115,6 +118,13 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
   useEffect(() => {
     dispatch(setUploads(ssUploads));
   }, []);
+
+  // useEffect(() => {
+  //   if (initialUploadsLength !== ssUploads.length) {
+  //     console.log('getting uploads');
+  //     getUploads();
+  //   }
+  // }, [initialUploadsLength]);
 
   const [transcribeEntries] = useTranscribeEntriesMutation();
 
@@ -263,37 +273,43 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
                 ),
                 `$${u.cost}`,
                 u.status,
-                <CheckBox
-                  checked={checkedUploads.some(
-                    (cu) => cu.entry_id === u.entry_id
-                  )}
-                  setChecked={() => {
-                    setCheckedUploads((draft) => {
-                      const index = draft.findIndex(
+                <>
+                  {u.status !== 'processing' ? (
+                    <CheckBox
+                      checked={checkedUploads.some(
                         (cu) => cu.entry_id === u.entry_id
-                      );
-                      if (index === -1) {
-                        draft.push(u);
-                      } else {
-                        draft.splice(index, 1);
-                      }
-                    });
-                  }}
-                />,
+                      )}
+                      setChecked={() => {
+                        setCheckedUploads((draft) => {
+                          const index = draft.findIndex(
+                            (cu) => cu.entry_id === u.entry_id
+                          );
+                          if (index === -1) {
+                            draft.push(u);
+                          } else {
+                            draft.splice(index, 1);
+                          }
+                        });
+                      }}
+                    />
+                  ) : (
+                    <Spinner />
+                  )}
+                  ,
+                </>,
               ],
             }))}
           />
-          <br />
-          <br />
-          <br />
-          <br />
-          {/* {checkedUploads.length > 0 && ( */}
+
           <Button
             disabled={!hasFunds || checkedUploads.length === 0}
             fullWidth
             onClick={startTranscribing}
           >
-            Transcribe {checkedUploads.length}
+            Transcribe{' '}
+            {checkedUploads.length === 1
+              ? 'file'
+              : `${checkedUploads.length} files`}
           </Button>
           <br />
           <br />

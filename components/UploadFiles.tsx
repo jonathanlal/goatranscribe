@@ -1,54 +1,62 @@
-import { Button, H } from 'frostbyte';
+import { Button } from 'frostbyte';
 import { Dropzone } from './Dropzone';
 import {
   useLazyGetUploadUrlQuery,
+  useLazyGetUploadsQuery,
   useUploadCompletedMutation,
 } from 'store/services/upload';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useImmer } from 'use-immer';
-import { UploadStatus } from 'interfaces/UploadStatus';
+import {
+  MultipleUploadsStatus,
+  UploadStatusFields,
+} from 'interfaces/UploadStatus';
 import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { getAudioDurationFromFile } from 'utils/getAudioDurationFromFile';
-// import { COST_PER_SECOND, COST_PER_SECOND_WHISPER } from 'utils/constants';
-// import { formatDuration } from 'date-fns';
-// import { formatDuration } from 'utils/formatDuration';
-// import { formatDuration } from 'date-fns';
+import { formatBytes } from 'utils/formatBytes';
 
 export const UploadFiles = () => {
-  const [status, setStatus] = useImmer<UploadStatus[]>([]);
+  const [getUploads] = useLazyGetUploadsQuery();
+  const [getUploadUrl] = useLazyGetUploadUrlQuery();
+  const [uploadCompleted] = useUploadCompletedMutation();
+
+  const [status, setStatus] = useImmer<MultipleUploadsStatus>({});
+
   const [files, setFiles] = useState<File[]>([]);
   const [hasStarted, setHasStarted] = useState(false);
   const { user } = useUser();
 
-  console.log('USER: ', user);
+  const updateProgressStatus = (
+    entryId: string,
+    statusUpdate: UploadStatusFields
+  ) => {
+    setStatus((prevStatuses) => {
+      const newStatuses = { ...prevStatuses };
+      newStatuses[entryId] = {
+        ...newStatuses[entryId],
+        ...statusUpdate,
+      };
+      return newStatuses;
+    });
+  };
 
-  const [getUploadUrl] = useLazyGetUploadUrlQuery();
-  const [uploadCompleted] = useUploadCompletedMutation();
+  const fetchSasUrl = async (numFiles: number) => {
+    const { sasUrl, entryKeys } = await getUploadUrl({ numFiles }).unwrap();
+    return entryKeys.map((entryKey) => ({ entryKey, sasUrl }));
+  };
 
-  const handleUpload = async () => {
-    setHasStarted(true);
-
-    //get file
-    const file = files[0];
-
-    // const whisperCost = duration * COST_PER_SECOND_WHISPER;
-    // console.log('estimated cost to goat', whisperCost);
-
-    // console.log('profit', estimatedCost - whisperCost);
-
-    // get upload url
+  const uploadFile = async (file: File, { entryKey, sasUrl }) => {
+    const fileSize = formatBytes(file.size);
+    const fileName = file.name;
     const duration = await getAudioDurationFromFile(file);
-    console.log('duration', duration);
-    const { entryKey, sasUrl } = await getUploadUrl().unwrap();
-    console.log('1');
-    //upload to azure
+
     const blobService = new BlobServiceClient(sasUrl);
     const containerClient: ContainerClient = blobService.getContainerClient(
       user.id as string
     );
     const blobClient = containerClient.getBlockBlobClient(`audio/${entryKey}`);
-    console.log('2');
+
     try {
       const options = {
         blobHTTPHeaders: { blobContentType: file.type },
@@ -56,33 +64,61 @@ export const UploadFiles = () => {
           const percentage = Math.ceil(
             (progressEvent.loadedBytes / file.size) * 100
           );
-          // setProgress(percentage);
+
+          updateProgressStatus(entryKey, {
+            description: 'Uploading file',
+            currentStatus: 'loading',
+            fileName,
+            fileSize,
+            uploadProgress: percentage,
+          });
         },
       };
       await blobClient.uploadData(file, options);
-      console.log('3');
+
       await blobClient.setMetadata({
         fileName: file.name,
         fileExtension: `.${file.name.split('.').pop()}`,
         duration: duration.toString(),
       });
-      console.log('4');
+
       await uploadCompleted({ entryKey }).unwrap();
-      setFiles([]);
-      setStatus([]);
-      console.log('5');
     } catch (error) {
       console.error('Error uploading data:', error);
       throw error;
     }
+  };
+
+  const handleUpload = async () => {
+    setHasStarted(true);
+    //fetch sasUrl and all the file entryKeys
+    const uploadParams = await fetchSasUrl(files.length);
+
+    //Upload all the files in parallel.
+    await Promise.all(
+      files.map((file, index) => uploadFile(file, uploadParams[index]))
+    );
+
+    try {
+      //triggers Uploads component to show new uploads
+      await getUploads().unwrap();
+      setStatus({});
+    } catch (e) {
+      //something went wrong toast
+    }
 
     setHasStarted(false);
   };
+
   return (
     <>
-      {/* <H>Total cost: ${cost}</H>
-      <H>Total duration: {totalDuration}</H> */}
-      <Dropzone status={status} maxFiles={10} setFiles={setFiles} multiple />
+      <Dropzone
+        hasFinishedUploading={hasStarted === false}
+        multipleStatus={status}
+        maxFiles={100}
+        setFiles={setFiles}
+        multiple
+      />
       {files.length > 0 && (
         <Button
           type="button"

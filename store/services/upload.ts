@@ -3,9 +3,14 @@ import { Upload } from 'interfaces/Upload';
 
 export const upload = api.injectEndpoints({
   endpoints: (build) => ({
-    getUploadUrl: build.query<{ sasUrl: string; entryKey: string }, void>({
-      query: () => ({
+    getUploadUrl: build.query<
+      { sasUrl: string; entryKeys: string[] },
+      { numFiles: number }
+    >({
+      query: ({ numFiles }) => ({
         url: `sasUrl`,
+        method: 'POST',
+        body: { numFiles },
       }),
       keepUnusedDataFor: 0,
     }),
@@ -33,6 +38,7 @@ export const {
   useLazyGetUploadUrlQuery,
   useUploadCompletedMutation,
   useGetUploadsQuery,
+  useLazyGetUploadsQuery,
 } = upload;
 
 export const {

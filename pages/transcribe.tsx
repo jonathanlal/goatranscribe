@@ -16,6 +16,7 @@ import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { UploadFiles } from 'components/UploadFiles';
 import { Uploads } from 'components/Uploads';
 import { Upload } from 'interfaces/Upload';
+import { Head } from 'next/document';
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
@@ -28,7 +29,7 @@ export const getServerSideProps = withPageAuthRequired({
       endpoint: 'uploads',
     });
     const uploads = data as Upload[];
-    console.log('data', data);
+    // console.log('data', data);
 
     return {
       props: {
@@ -53,12 +54,17 @@ const Profile = ({ user, ssUploads }: HomePageProps) => {
   const router = useRouter();
 
   return (
-    <FrostbyteLayout user={user}>
-      <Layout>
-        <Uploads ssUploads={ssUploads} />
-        <UploadFiles />
-      </Layout>
-    </FrostbyteLayout>
+    <>
+      {/* <Head>
+        <title>Upload & Transcribe</title>
+      </Head> */}
+      <FrostbyteLayout user={user}>
+        <Layout>
+          <Uploads ssUploads={ssUploads} />
+          <UploadFiles />
+        </Layout>
+      </FrostbyteLayout>
+    </>
   );
 };
 
