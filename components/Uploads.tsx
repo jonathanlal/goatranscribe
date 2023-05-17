@@ -108,7 +108,7 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
   const [transcribeTaskId, setTranscribeTaskId] = useState('');
 
   const { isFetching, isSuccess, data } = useGetTranscribeStatusQuery(
-    { transcribeTaskId },
+    { transcribeTaskId, entryKeys: checkedUploads.map((u) => u.entry_id) }, //this probabl shouldnt be checkedUploads cause now if user tries to transcribe something else it will create issues
     {
       pollingInterval: 1000,
       skip: !transcribeTaskId,
@@ -135,7 +135,7 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
         entryKeys: checkedUploads.map((u) => u.entry_id),
       }).unwrap();
       console.log('instanceId', instanceId);
-      setTranscribeTaskId(instanceId);
+      // setTranscribeTaskId(instanceId);
     } catch (e) {
       console.log('error', e);
     }

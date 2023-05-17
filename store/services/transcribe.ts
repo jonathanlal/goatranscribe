@@ -14,13 +14,16 @@ export const transcribe = api.injectEndpoints({
     }),
     getTranscribeStatus: build.query<
       { status: string; output: string },
-      { transcribeTaskId: string }
+      { transcribeTaskId: string; entryKeys: string[] }
     >({
-      query: ({ transcribeTaskId }) => ({
+      query: ({ transcribeTaskId, entryKeys }) => ({
         url: `transcribeStatus`,
         method: 'POST',
         body: { instanceId: transcribeTaskId },
       }),
+      // transformResponse: (response) => {
+      //   // we should check response against entryKeys and see if all have status: complete
+      // }
     }),
   }),
 });
