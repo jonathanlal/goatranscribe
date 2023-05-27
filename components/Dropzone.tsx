@@ -174,6 +174,7 @@ export const Dropzone = ({
     // autoFocus: true,
     accept: {
       'audio/mpeg': ['.mp3'],
+      'audio/mp4': ['.m4a'],
       'audio/wav': ['.wav'],
       'video/mp4': ['.mp4'],
       'video/mpeg': ['.mpeg'],
@@ -216,7 +217,7 @@ export const Dropzone = ({
             Can't transcribe that file type 😞
           </P>
           <P color="tomato10" size="16">
-            Allowed types: .mp3 .mp4 .mpeg .wav
+            Allowed types: .mp3 .mp4 .mpeg .wav, .m4a
           </P>
         </ErrorPanel>
       )}

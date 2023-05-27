@@ -6,11 +6,13 @@ import { getUploads } from 'store/services/upload';
 interface User {
   balance: number;
   uploads: Upload[];
+  tasksLoading: boolean;
 }
 
 const initialState: User = {
   balance: null,
   uploads: [],
+  tasksLoading: false,
 };
 
 export const userSlice = createSlice({
@@ -19,6 +21,9 @@ export const userSlice = createSlice({
   reducers: {
     setUploads: (state, action: PayloadAction<Upload[]>) => {
       state.uploads = action.payload;
+    },
+    setTasksLoading: (state, action: PayloadAction<boolean>) => {
+      state.tasksLoading = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -35,5 +40,5 @@ export const userSlice = createSlice({
 });
 
 export const {
-  actions: { setUploads },
+  actions: { setUploads, setTasksLoading },
 } = userSlice;

@@ -11,6 +11,21 @@ export const transcribe = api.injectEndpoints({
         method: 'POST',
         body: { entryKeys },
       }),
+      invalidatesTags: ['balance'],
+    }),
+    transcriptSeen: build.query<void, { entryKey: string }>({
+      query: ({ entryKey }) => ({
+        url: `transcript_seen`,
+        method: 'POST',
+        body: { entryKey },
+      }),
+    }),
+    transcriptsSeen: build.mutation<void, { taskIds: string[] }>({
+      query: ({ taskIds }) => ({
+        url: `transcripts_seen`,
+        method: 'POST',
+        body: { taskIds },
+      }),
     }),
     getTranscribeStatus: build.query<
       { status: string; output: string },
@@ -28,9 +43,18 @@ export const transcribe = api.injectEndpoints({
   }),
 });
 
-export const { useTranscribeEntriesMutation, useGetTranscribeStatusQuery } =
-  transcribe;
+export const {
+  useTranscribeEntriesMutation,
+  useGetTranscribeStatusQuery,
+  useTranscriptsSeenMutation,
+  useTranscriptSeenQuery,
+} = transcribe;
 
 export const {
-  endpoints: { transcribeEntries, getTranscribeStatus },
+  endpoints: {
+    transcribeEntries,
+    getTranscribeStatus,
+    transcriptSeen,
+    transcriptsSeen,
+  },
 } = transcribe;

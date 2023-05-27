@@ -1,11 +1,14 @@
-import { Button, CheckBox, H, P, styled, useFrostbyte } from 'frostbyte';
+import {
+  Button,
+  CheckBox,
+  H,
+  P,
+  Seperator,
+  styled,
+  useFrostbyte,
+} from 'frostbyte';
 import { CustomTable } from './CustomTable';
 import { formatDistanceToNow, formatDuration, parseISO } from 'date-fns';
-import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
-import {
-  useGetUploadsQuery,
-  useLazyGetUploadsQuery,
-} from 'store/services/upload';
 import { formatBytes } from 'utils/formatBytes';
 import { useImmer } from 'use-immer';
 import { useEffect, useState } from 'react';
@@ -13,16 +16,18 @@ import { COST_PER_SECOND } from 'utils/constants';
 import { useGetBalanceQuery } from 'store/services/balance';
 import { useRouter } from 'next/router';
 import { CSSTransition } from 'react-transition-group';
-import { getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import { Upload } from 'interfaces/Upload';
 import { useAppDispatch, useAppSelector } from 'store/hooks';
-import { setUploads } from 'store/features/user';
+import { setTasksLoading, setUploads } from 'store/features/user';
 import {
   useGetTranscribeStatusQuery,
   useTranscribeEntriesMutation,
 } from 'store/services/transcribe';
-import { ca } from 'date-fns/locale';
 import Spinner from './Spinner';
+import { animateScroll as scroll } from 'react-scroll';
+import { ButtonLink } from './ButtonLink';
+import { TitleWithIconWrapper } from 'styles/shared';
+import { CheckCircledIcon, PlayIcon, Cross1Icon } from '@radix-ui/react-icons';
 
 // const fadeIn = keyframes({
 //     from: {
@@ -71,10 +76,6 @@ const ErrorPanel = styled('div', {
 });
 
 const PrimaryPanel = styled('div', {
-  //   display: 'flex',
-  //   flexDirection: 'column',
-  //   alignItems: 'center',
-  //   justifyContent: 'center',
   textAlign: 'center',
   borderRadius: '5px',
   gap: '10px',
@@ -84,10 +85,25 @@ const PrimaryPanel = styled('div', {
   color: '$primary',
   marginBottom: '20px',
   fontSize: 22,
+  position: 'fixed',
+  bottom: 0,
+  // width: '100vw',
+  width: 'calc(100% - 10vw)', // Subtract left and right padding
+  zIndex: 1,
+
+  '& p:first-child b:first-child': {
+    color: '$tomato9',
+  },
 });
-// const Bold = styled('span', {
-//   fontWeight: 'bold',
-// });
+
+const CloseIcon = styled(Cross1Icon, {
+  '&:hover': {
+    cursor: 'pointer',
+    transform: 'translateY(-2px)',
+    backgroundColor: '$mauve5',
+    padding: '2px',
+  },
+});
 
 export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
   const dispatch = useAppDispatch();
@@ -107,6 +123,17 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
   const [totalDuration, setTotalDuration] = useState('');
   const [transcribeTaskId, setTranscribeTaskId] = useState('');
 
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const itemsPerPage = 10;
+
+  // const paginatedUploads = uploads
+  //   .filter((u) => u.status !== 'complete')
+  //   .slice(0, currentPage * itemsPerPage);
+
+  // const uploadsCount = uploads.length;
+
+  // const hasMore = uploads.length > currentPage * itemsPerPage;
+
   const { isFetching, isSuccess, data } = useGetTranscribeStatusQuery(
     { transcribeTaskId, entryKeys: checkedUploads.map((u) => u.entry_id) }, //this probabl shouldnt be checkedUploads cause now if user tries to transcribe something else it will create issues
     {
@@ -119,22 +146,40 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
     dispatch(setUploads(ssUploads));
   }, []);
 
-  // useEffect(() => {
-  //   if (initialUploadsLength !== ssUploads.length) {
-  //     console.log('getting uploads');
-  //     getUploads();
-  //   }
-  // }, [initialUploadsLength]);
-
-  const [transcribeEntries] = useTranscribeEntriesMutation();
+  const [transcribeEntries, { isLoading: transcribeEntriesLoading }] =
+    useTranscribeEntriesMutation();
 
   const startTranscribing = async () => {
-    console.log('checkedUploads', checkedUploads);
+    dispatch(setTasksLoading(true));
+    const selectedEntries = checkedUploads.map((u) => u.entry_id);
     try {
+      const checkedUploadsAsProcessing: Upload[] = uploads.map((u) => {
+        if (selectedEntries.includes(u.entry_id)) {
+          return {
+            ...u,
+            status: 'processing',
+          };
+        } else {
+          return u;
+        }
+      });
+
+      dispatch(setUploads(checkedUploadsAsProcessing));
+
       const { instanceId } = await transcribeEntries({
-        entryKeys: checkedUploads.map((u) => u.entry_id),
+        entryKeys: selectedEntries,
       }).unwrap();
-      console.log('instanceId', instanceId);
+
+      // we need to update uploads and remove the ones that are being transcribed
+
+      const newUploads = uploads.filter(
+        (u) => !selectedEntries.includes(u.entry_id)
+      );
+
+      dispatch(setUploads(newUploads));
+      setCheckedUploads([]);
+
+      scroll.scrollToTop({ duration: 200 });
       // setTranscribeTaskId(instanceId);
     } catch (e) {
       console.log('error', e);
@@ -166,12 +211,14 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
         (acc, item) => acc + item.duration,
         0
       );
-
       const hours = Math.floor(totalTime / 3600);
       const minutes = Math.floor((totalTime % 3600) / 60);
       const seconds = Math.round(totalTime % 60);
 
-      setCost(parseFloat(totalCost.toFixed(2)));
+      const estimatedCost = Math.ceil(totalCost * 100) / 100;
+
+      setCost(estimatedCost);
+
       setTotalDuration(
         formatDuration(
           { hours, minutes, seconds },
@@ -194,6 +241,50 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
   //   console.log('hasFunds', hasFunds);
   //   console.log('cost', cost);
 
+  const selectAll = () => {
+    setCheckedUploads(uploads.filter((u) => u.status !== 'complete'));
+  };
+  const clearAll = () => {
+    setCheckedUploads([]);
+  };
+
+  const TranscribeButton = () => (
+    <Button
+      disabled={
+        !hasFunds || checkedUploads.length === 0 || transcribeEntriesLoading
+      }
+      fullWidth
+      onClick={startTranscribing}
+      loading={transcribeEntriesLoading}
+      color="grass6"
+      css={{
+        zIndex: 10,
+        display: 'grid',
+        placeItems: 'center', //fix loading position
+      }}
+    >
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+        }}
+      >
+        <PlayIcon
+          width={30}
+          height={30}
+          style={{
+            marginTop: '3px',
+          }}
+        />
+        <span>Start</span>
+      </div>
+    </Button>
+  );
+
+  const uploadsLength =
+    uploads?.filter((u) => u.status !== 'complete').length || 0;
+
   return (
     <>
       {!hasFunds && (
@@ -210,12 +301,40 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
         unmountOnExit
       >
         <PrimaryPanel>
-          <P>
+          <div
+            style={{
+              position: 'absolute',
+              right: '10px',
+              top: '10px',
+            }}
+          >
+            <CloseIcon width={25} height={25} onClick={clearAll} />
+          </div>
+          <P
+            css={{
+              marginBottom: '10px',
+            }}
+          >
             Total cost: <b>${cost}</b>
           </P>
           <P>
             Total duration: <b>{totalDuration}</b>
           </P>
+          <P
+            css={{
+              margin: '15px 0',
+            }}
+            color="mauve9"
+            size="19"
+          >
+            Click to start transcribing{' '}
+            {checkedUploads.length > 0
+              ? checkedUploads.length === 1
+                ? '1 file:'
+                : `${checkedUploads.length} files:`
+              : ''}
+          </P>
+          <TranscribeButton />
         </PrimaryPanel>
       </CSSTransition>
       {/* )} */}
@@ -233,13 +352,46 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
           />
         </SkeletonTheme>
       )} */}
-      <h1>instanceID: {transcribeTaskId}</h1>
-      {isFetching && <div>FETCHING TRANSCRIBE STATUS</div>}
-      {isSuccess && <div>FETCHING RESULTS</div>}
-      {data && <>data: {JSON.stringify(data)}</>}
-      {uploads && uploads.length > 0 && (
+      {/* <h1>instanceID: {transcribeTaskId}</h1> */}
+      {/* {isFetching && <div>FETCHING TRANSCRIBE STATUS</div>} */}
+      {/* {isSuccess && <div>FETCHING RESULTS</div>} */}
+      {/* {data && <>data: {JSON.stringify(data)}</>} */}
+      {uploadsLength > 0 && (
         <>
-          {/* <H>Uploads</H> */}
+          <TitleWithIconWrapper>
+            <CheckCircledIcon width={30} height={30} />
+            <H color="purple9">
+              {uploadsLength} file{uploadsLength > 1 && 's'} ready:
+            </H>
+          </TitleWithIconWrapper>
+          <P
+            size="20"
+            color="purple8"
+            css={{
+              '@mdMax': {
+                marginBottom: '10px',
+              },
+            }}
+          >
+            Select the files you want to transcribe
+          </P>
+          <div
+            style={{
+              textAlign: 'right',
+            }}
+          >
+            <div
+              style={{
+                display: 'inline-flex',
+                gap: '20px',
+              }}
+            >
+              {checkedUploads.length > 0 && (
+                <ButtonLink onClick={clearAll}>Clear all</ButtonLink>
+              )}
+              <ButtonLink onClick={selectAll}>Select all</ButtonLink>
+            </div>
+          </div>
           <CustomTable
             headerItems={[
               'Name',
@@ -250,70 +402,78 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
               'Status',
               'Select',
             ]}
-            items={uploads.map((u) => ({
-              entry_id: u.entry_id,
-              data: [
-                u.file_name,
-                formatDistanceToNow(parseISO(u.creation_date), {
-                  addSuffix: true,
-                }),
-                formatBytes(u.file_size),
-                // const hours = Math.floor(totalTime / 3600);
-                // const minutes = Math.floor((totalTime % 3600) / 60);
-                // const seconds = Math.round(totalTime % 60);
-                formatDuration(
-                  {
-                    hours: Math.floor(u.duration / 3600),
-                    minutes: Math.floor((u.duration % 3600) / 60),
-                    seconds: Math.round(u.duration % 60),
-                  },
-                  {
-                    format: ['hours', 'minutes', 'seconds'],
-                  }
-                ),
-                `$${u.cost}`,
-                u.status,
-                <>
-                  {u.status !== 'processing' ? (
-                    <CheckBox
-                      checked={checkedUploads.some(
-                        (cu) => cu.entry_id === u.entry_id
-                      )}
-                      setChecked={() => {
-                        setCheckedUploads((draft) => {
-                          const index = draft.findIndex(
-                            (cu) => cu.entry_id === u.entry_id
-                          );
-                          if (index === -1) {
-                            draft.push(u);
-                          } else {
-                            draft.splice(index, 1);
-                          }
-                        });
-                      }}
-                    />
-                  ) : (
-                    <Spinner />
-                  )}
-                  ,
-                </>,
-              ],
-            }))}
+            items={uploads
+              .filter((u) => u.status !== 'complete')
+              .map((u) => ({
+                entry_id: u.entry_id,
+                data: [
+                  u.file_name,
+                  formatDistanceToNow(parseISO(u.creation_date), {
+                    addSuffix: true,
+                  }),
+                  formatBytes(u.file_size),
+                  // const hours = Math.floor(totalTime / 3600);
+                  // const minutes = Math.floor((totalTime % 3600) / 60);
+                  // const seconds = Math.round(totalTime % 60);
+                  formatDuration(
+                    {
+                      hours: Math.floor(u.duration / 3600),
+                      minutes: Math.floor((u.duration % 3600) / 60),
+                      seconds: Math.round(u.duration % 60),
+                    },
+                    {
+                      format: ['hours', 'minutes', 'seconds'],
+                    }
+                  ),
+                  `$${u.cost}`,
+                  u.status,
+                  <>
+                    {u.status !== 'processing' ? (
+                      <CheckBox
+                        checked={checkedUploads.some(
+                          (cu) => cu.entry_id === u.entry_id
+                        )}
+                        setChecked={() => {
+                          setCheckedUploads((draft) => {
+                            const index = draft.findIndex(
+                              (cu) => cu.entry_id === u.entry_id
+                            );
+                            if (index === -1) {
+                              draft.push(u);
+                            } else {
+                              draft.splice(index, 1);
+                            }
+                          });
+                        }}
+                      />
+                    ) : (
+                      <Spinner />
+                    )}
+                  </>,
+                ],
+              }))}
           />
+          {/* {hasMore && (
+            <Button onClick={() => setCurrentPage((prevPage) => prevPage + 1)}>
+              See More
+            </Button>
+          )}
+          {currentPage > 1 && (
+            <Button
+              onClick={() =>
+                setCurrentPage((prevPage) =>
+                  prevPage > 1 ? prevPage - 1 : prevPage
+                )
+              }
+            >
+              See Less
+            </Button> */}
+          {/* )} */}
 
-          <Button
-            disabled={!hasFunds || checkedUploads.length === 0}
-            fullWidth
-            onClick={startTranscribing}
-          >
-            Transcribe{' '}
-            {checkedUploads.length === 1
-              ? 'file'
-              : `${checkedUploads.length} files`}
-          </Button>
-          <br />
-          <br />
-          <br />
+          {/* <TranscribeButton /> */}
+          {/* <br /> */}
+          <Seperator color="purple8" css={{ marginTop: '25px' }} />
+
           <br />
           {/* )} */}
         </>

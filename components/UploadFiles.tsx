@@ -1,11 +1,11 @@
-import { Button } from 'frostbyte';
+import { Button, H, P } from 'frostbyte';
 import { Dropzone } from './Dropzone';
 import {
   useLazyGetUploadUrlQuery,
   useLazyGetUploadsQuery,
   useUploadCompletedMutation,
 } from 'store/services/upload';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useImmer } from 'use-immer';
 import {
   MultipleUploadsStatus,
@@ -15,6 +15,8 @@ import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { getAudioDurationFromFile } from 'utils/getAudioDurationFromFile';
 import { formatBytes } from 'utils/formatBytes';
+import { UploadIcon } from '@radix-ui/react-icons';
+import { TitleWithIconWrapper } from 'styles/shared';
 
 export const UploadFiles = () => {
   const [getUploads] = useLazyGetUploadsQuery();
@@ -110,8 +112,38 @@ export const UploadFiles = () => {
     setHasStarted(false);
   };
 
+  useEffect(() => {
+    const uploadIsComplete = Object.values(status).some(
+      (s) => s.uploadProgress === 100
+    );
+
+    if (uploadIsComplete) {
+      (async () => {
+        try {
+          await getUploads().unwrap();
+        } catch (e) {
+          console.error('Failed to get uploads:', e);
+        }
+      })();
+    }
+  }, [status]);
+
   return (
     <>
+      <TitleWithIconWrapper>
+        <UploadIcon width={30} height={30} />{' '}
+        <H color="purple9">Upload files:</H>
+      </TitleWithIconWrapper>
+
+      <P
+        size="20"
+        color="purple8"
+        css={{
+          marginBottom: '20px',
+        }}
+      >
+        Add up to 100 files at a time.
+      </P>
       <Dropzone
         hasFinishedUploading={hasStarted === false}
         multipleStatus={status}
@@ -125,13 +157,17 @@ export const UploadFiles = () => {
           onClick={handleUpload}
           fullWidth
           loading={hasStarted}
+          loadingText="Uploading..."
+          color="grass6"
           css={{
             display: 'grid',
             placeItems: 'center', //fix loading position
             marginTop: '20px',
           }}
         >
-          Upload Files
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <UploadIcon width={25} height={25} /> Upload Files
+          </div>
         </Button>
       )}
     </>

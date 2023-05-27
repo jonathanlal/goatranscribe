@@ -1,22 +1,12 @@
 import { Claims, getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import FrostbyteLayout from 'components/FrostbyteLayout';
-import { Button, styled } from 'frostbyte';
+import { styled } from 'frostbyte';
 import { makeRequestSS } from 'utils/makeRequestSS';
-import formatDistanceToNow from 'date-fns/formatDistanceToNow';
-import parseISO from 'date-fns/parseISO';
-import { useRouter } from 'next/router';
-import { CustomTable } from 'components/CustomTable';
-import { useDropzone } from 'react-dropzone';
-import { UploadStatus } from 'interfaces/UploadStatus';
-import { useImmer } from 'use-immer';
-import { Dropzone } from 'components/Dropzone';
-import { useState } from 'react';
-import { useLazyGetUploadUrlQuery } from 'store/services/upload';
-import { BlobServiceClient, ContainerClient } from '@azure/storage-blob';
 import { UploadFiles } from 'components/UploadFiles';
 import { Uploads } from 'components/Uploads';
 import { Upload } from 'interfaces/Upload';
-import { Head } from 'next/document';
+import Head from 'next/head';
+import { TasksStatus } from 'components/TasksStatus';
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
@@ -29,7 +19,6 @@ export const getServerSideProps = withPageAuthRequired({
       endpoint: 'uploads',
     });
     const uploads = data as Upload[];
-    // console.log('data', data);
 
     return {
       props: {
@@ -51,15 +40,14 @@ const Layout = styled('div', {
 });
 
 const Profile = ({ user, ssUploads }: HomePageProps) => {
-  const router = useRouter();
-
   return (
     <>
-      {/* <Head>
+      <Head>
         <title>Upload & Transcribe</title>
-      </Head> */}
+      </Head>
       <FrostbyteLayout user={user}>
         <Layout>
+          <TasksStatus user={user} />
           <Uploads ssUploads={ssUploads} />
           <UploadFiles />
         </Layout>

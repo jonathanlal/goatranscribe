@@ -71,7 +71,7 @@ const PrimaryPanel = styled('div', {
 
 const Layout = styled('div', {
   padding: '6vw 5vw',
-  height: '100vh',
+  minHeight: '100vh',
 });
 
 const Transcripts = ({ user, files }: HomePageProps) => {
@@ -119,7 +119,20 @@ const Transcripts = ({ user, files }: HomePageProps) => {
         )}
         {files.length > 0 && (
           <>
-            <h1>Transcripts:</h1>
+            <H color="purple9" css={{ lineHeight: 1.1, marginBottom: '5px' }}>
+              Your transcripts:
+            </H>
+            <P
+              size="20"
+              color="purple8"
+              css={{
+                '@mdMax': {
+                  marginBottom: '10px',
+                },
+              }}
+            >
+              Click on a file to view the transcript
+            </P>
             <CustomTable
               headerItems={['Name', 'Creation', 'Word count']}
               items={files.map((file) => ({
