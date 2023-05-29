@@ -26,10 +26,11 @@ export const TRow = styled(Tr, {
   },
 
   '& td:first-child': {
-    minWidth: 340,
-    whiteSpace: 'nowrap',
+    // minWidth: 340,
+    // whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    overflowWrap: 'anywhere !important',
   },
   compoundVariants: [
     {

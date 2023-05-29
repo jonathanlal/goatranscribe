@@ -5,7 +5,7 @@ import { initializeApp } from 'firebase/app';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import { useInitFirebaseQuery } from 'store/services/firebase';
 import { useAppDispatch, useAppSelector } from 'store/hooks';
-import { CustomTable } from './CustomTable';
+import { CustomTable, Item } from './CustomTable';
 import { formatDistanceToNow, formatDuration, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
 import { useTranscriptsSeenMutation } from 'store/services/transcribe';
@@ -18,6 +18,8 @@ import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 import { setTasksLoading } from 'store/features/user';
 import { TitleWithIconWrapper } from 'styles/shared';
 import { Link2Icon } from '@radix-ui/react-icons';
+import 'react-loading-skeleton/dist/skeleton.css';
+import { useLazyGetUploadsQuery } from 'store/services/upload';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCOpqGCG4G7YUFKAjhnpTQavD5NtnRtnis',
@@ -53,12 +55,13 @@ export const TasksStatus = ({ user }) => {
   const router = useRouter();
   const { data: customToken } = useInitFirebaseQuery();
   const [markAllAsSeen] = useTranscriptsSeenMutation();
+  const [getUploads] = useLazyGetUploadsQuery();
   const { uploads } = useAppSelector((state) => state.user);
   if (customToken) {
     const auth = getAuth(app);
     signInWithCustomToken(auth, customToken);
   }
-  console.log(uploads);
+  // console.log(uploads);
 
   useEffect(() => {
     if (user && customToken) {
@@ -74,7 +77,12 @@ export const TasksStatus = ({ user }) => {
           //     (upload) => upload.entry_id === task.entry_key
           //   );
           //   console.log(task);
-          if (!task.seen) newTasks.push({ ...task, task_id: task_id });
+          if (!task.seen && task.task_type === 'transcribe')
+            newTasks.push({ ...task, task_id: task_id });
+
+          if (task.task_type === 'transcribe' && task.status === 'completed') {
+            getUploads().unwrap();
+          }
         });
         setTasks(newTasks.reverse());
         dispatch(setTasksLoading(false));
@@ -106,27 +114,28 @@ export const TasksStatus = ({ user }) => {
   return (
     <>
       {/* why is this not showing? */}
-      {tasksLoading && (
+      {/* {!tasksLoading && (
         <SkeletonTheme
           baseColor={isDarkTheme ? '#161618' : ''}
           highlightColor={isDarkTheme ? '#1F1F1F' : ''}
         >
-          Loading tasks...
-          <Skeleton
-            width="100%"
-            height="300px"
-            style={{
-              marginTop: '20px',
-            }}
+          <CustomTable
+            color={'blue'}
+            headerItems={['Name', 'Started', 'Status', 'Time taken']}
+            items={tasks.map((t) => ({
+              disabled: true,
+              data: [
+                <Skeleton width="100%" height="28px" />,
+                <Skeleton width="100%" height="28px" />,
+                <Skeleton width="100%" height="28px" />,
+                <Skeleton width="100%" height="28px" />,
+              ],
+            }))}
           />
-          <Skeleton width="100%" height="68px" />
-          <Skeleton width="100%" height="68px" />
-          <Skeleton width="100%" height="68px" />
-          <Skeleton width="100%" height="68px" />
         </SkeletonTheme>
-      )}
+      )} */}
       <CSSTransition
-        in={tasks.length > 0}
+        in={tasksLoading || tasks.length > 0}
         timeout={300}
         classNames="fade"
         unmountOnExit
@@ -158,34 +167,47 @@ export const TasksStatus = ({ user }) => {
           <CustomTable
             color={'blue'}
             headerItems={['Name', 'Started', 'Status', 'Time taken']}
-            items={tasks.map((t) => ({
-              entry_id: t.entry_key,
-              disabled: t.status !== 'completed',
-              data: [
-                t.file_name,
-                t.date_started
-                  ? formatDistanceToNow(parseISO(t.date_started), {
-                      addSuffix: true,
-                    })
-                  : null,
-                t.description,
-                t.time_taken ? (
-                  formatDuration(
-                    {
-                      minutes: Math.floor((t.time_taken % 3600) / 60),
-                      seconds: Math.round(t.time_taken % 60),
-                    },
-                    {
-                      format: ['minutes', 'seconds'],
-                    }
-                  )
-                ) : hasError(t.status) ? (
-                  <ExclamationTriangleIcon width={20} height={20} />
-                ) : (
-                  <Spinner />
-                ),
-              ],
-            }))}
+            items={[
+              tasksLoading
+                ? {
+                    disabled: true,
+                    data: [
+                      <Skeleton width="100%" height="28px" />,
+                      <Skeleton width="100%" height="28px" />,
+                      <Skeleton width="100%" height="28px" />,
+                      <Skeleton width="100%" height="28px" />,
+                    ],
+                  }
+                : { data: [] },
+              ...tasks.map((t) => ({
+                entry_id: t.entry_key,
+                disabled: t.status !== 'completed',
+                data: [
+                  t.file_name,
+                  t.date_started
+                    ? formatDistanceToNow(parseISO(t.date_started), {
+                        addSuffix: true,
+                      })
+                    : null,
+                  t.description,
+                  t.time_taken ? (
+                    formatDuration(
+                      {
+                        minutes: Math.floor((t.time_taken % 3600) / 60),
+                        seconds: Math.round(t.time_taken % 60),
+                      },
+                      {
+                        format: ['minutes', 'seconds'],
+                      }
+                    )
+                  ) : hasError(t.status) ? (
+                    <ExclamationTriangleIcon width={20} height={20} />
+                  ) : (
+                    <Spinner />
+                  ),
+                ],
+              })),
+            ]}
             onClick={(entry_id) => router.push(`/transcript/${entry_id}`)}
           />
           <Seperator color="indigo8" css={{ marginTop: '25px' }} />

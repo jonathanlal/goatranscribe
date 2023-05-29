@@ -283,7 +283,8 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
   );
 
   const uploadsLength =
-    uploads?.filter((u) => u.status !== 'complete').length || 0;
+    uploads?.filter((u) => u.status !== 'complete' && u.status !== 'processing')
+      .length || 0;
 
   return (
     <>
@@ -404,6 +405,7 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
             ]}
             items={uploads
               .filter((u) => u.status !== 'complete')
+              .filter((u) => u.status !== 'processing')
               .map((u) => ({
                 entry_id: u.entry_id,
                 data: [

@@ -3,7 +3,7 @@ import { Cell, HeaderRow, TBody, TRow, Table } from 'styles/table';
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
 import { ReactNode } from 'react';
 
-type Item = string | ReactNode;
+export type Item = string | ReactNode;
 
 export const THeader = ({
   items,
@@ -31,7 +31,7 @@ export const Row = ({
   disabled = false,
 }: {
   items: Item[];
-  entry_id: string;
+  entry_id?: string;
   onClick?: (entry_id: string) => void;
   color?: string;
   disabled?: boolean;

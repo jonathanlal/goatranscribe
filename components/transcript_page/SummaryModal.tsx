@@ -7,6 +7,7 @@ import { useTranslateEntriesMutation } from 'store/services/translate';
 import { COST_PER_CHARACTER } from 'utils/constants';
 import { LANGUAGES, LanguageCode } from 'utils/translateLanguages';
 import { CSSTransition } from 'react-transition-group';
+import { useCreateSummaryMutation } from 'store/services/summary';
 
 // padding: 10px;
 // color: #555;
@@ -73,28 +74,23 @@ const ClearButtonWrapper = styled('div', {
   marginTop: '10px',
 });
 
-export const TranslateModal = ({
-  setAddTranslationModal,
-  addTranslationModal,
+export const SummaryModal = ({
+  setAddSummaryModal,
+  addSummaryModal,
   entryKey,
-  translations,
   char_count,
-  setTranslateTaskLoading,
+  setSummaryTaskLoading,
 }) => {
-  const [selectedLanguages, setSelectedLanguages] = useState([]);
   const [cost, setCost] = useState(0);
   const [hasFunds, setHasFunds] = useState(true);
-  const [translateEntries, { isLoading: translateEntriesLoading }] =
-    useTranslateEntriesMutation();
+  const [createSummary, { isLoading: summaryLoading }] =
+    useCreateSummaryMutation();
 
   const { data: balance } = useGetBalanceQuery();
 
   useEffect(() => {
     const calculateCost = async () => {
-      let totalCost = selectedLanguages.reduce(
-        (acc, item) => acc + char_count * COST_PER_CHARACTER,
-        0
-      );
+      let totalCost = char_count * COST_PER_CHARACTER;
 
       const estimatedCost = Math.ceil(totalCost * 100) / 100;
 
@@ -103,36 +99,25 @@ export const TranslateModal = ({
       setHasFunds(balance >= totalCost);
     };
 
-    if (selectedLanguages.length > 0 && balance !== undefined) {
-      //   if (selectedLanguages.length > 0 && balance !== undefined) {
+    if (balance !== undefined) {
       calculateCost();
     } else {
       setCost(0);
       setHasFunds(true);
     }
-  }, [selectedLanguages.length, balance]);
+  }, [balance]);
 
-  //   console.log('translations', translations);
-  const languageOptions = Object.keys(LANGUAGES)
-    .filter((code) => !translations.includes(code))
-    .map((code) => ({
-      label: LANGUAGES[code as LanguageCode],
-      value: code,
-    }));
-
-  const startTranslation = async () => {
-    setTranslateTaskLoading(true);
-    const { instanceId } = await translateEntries({
-      entryKeys: [entryKey],
-      targetLangs: selectedLanguages.map((lang) => lang.value),
+  const startSummary = async () => {
+    setSummaryTaskLoading(true);
+    const { instanceId } = await createSummary({
+      entryKey,
     }).unwrap();
-    setSelectedLanguages([]);
-    setAddTranslationModal(false);
+    setAddSummaryModal(false);
   };
   //   console.log('selectedLanguages', selectedLanguages);
 
   return (
-    <Modal setOpen={setAddTranslationModal} open={addTranslationModal}>
+    <Modal setOpen={setAddSummaryModal} open={addSummaryModal}>
       <CSSTransition
         in={cost > 0}
         timeout={300}
@@ -151,52 +136,12 @@ export const TranslateModal = ({
           </P>
         </PrimaryPanel>
       </CSSTransition>
-      <H color="purple9" css={{ marginBottom: '0px' }}>
-        Select languages:
-      </H>
-      <P
-        size="20"
-        color="purple8"
-        css={{
-          marginBottom: '10px',
-        }}
-      >
-        Select the languages you want to translations for
-      </P>
-      <Select
-        multi
-        options={languageOptions}
-        values={selectedLanguages}
-        disabled={translateEntriesLoading}
-        itemRenderer={({ item, methods }) => (
-          <StyledItem onClick={() => methods.addItem(item)}>
-            <input
-              onChange={() => methods.addItem(item)}
-              type="checkbox"
-              checked={methods.isSelected(item)}
-            />{' '}
-            {item.label}
-          </StyledItem>
-        )}
-        onChange={setSelectedLanguages}
-      />
-      <ClearButtonWrapper>
-        <Button
-          size="xs"
-          color="mauve6"
-          onClick={() => setSelectedLanguages([])}
-          disabled={translateEntriesLoading || selectedLanguages.length == 0}
-        >
-          Clear
-        </Button>
-      </ClearButtonWrapper>
+
       <br />
       <Button
-        onClick={startTranslation}
-        disabled={
-          !hasFunds || selectedLanguages.length == 0 || translateEntriesLoading
-        }
-        loading={translateEntriesLoading}
+        onClick={startSummary}
+        disabled={!hasFunds || summaryLoading}
+        loading={summaryLoading}
         color="grass6"
         fullWidth
         css={{
