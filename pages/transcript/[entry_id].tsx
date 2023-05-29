@@ -178,9 +178,9 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
   const [downloadModal, setDownloadModal] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
 
-  const [showParagraphed, setShowParagraphed] = useState(false);
-  const [paragraphTaskLoading, setParagraphTaskLoading] = useState(false);
-  const [addParagraphModal, setAddParagraphModal] = useState(false);
+  // const [showParagraphed, setShowParagraphed] = useState(false);
+  // const [paragraphTaskLoading, setParagraphTaskLoading] = useState(false);
+  // const [addParagraphModal, setAddParagraphModal] = useState(false);
 
   const [summaryTask, setSummaryTask] = useState<Task>({
     status: 'pending',
@@ -194,21 +194,21 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
     seen: false,
   });
 
-  const [paragraphTask, setParagraphTask] = useState<Task>({
-    status: 'pending',
-    entry_key: '',
-    task_type: '',
-    date_started: '',
-    time_taken: 0,
-    description: 'Adding paragraphs to transcript...',
-    file_name: '',
-    task_id: '',
-    seen: false,
-  });
+  // const [paragraphTask, setParagraphTask] = useState<Task>({
+  //   status: 'pending',
+  //   entry_key: '',
+  //   task_type: '',
+  //   date_started: '',
+  //   time_taken: 0,
+  //   description: 'Adding paragraphs to transcript...',
+  //   file_name: '',
+  //   task_id: '',
+  //   seen: false,
+  // });
   const [getSummary, { data: summary_content }] = useLazyGetSummaryQuery();
 
-  const [getParagraphed, { data: paragraph_content }] =
-    useLazyGetParagraphedQuery();
+  // const [getParagraphed, { data: paragraph_content }] =
+  //   useLazyGetParagraphedQuery();
   const [translationsTasks, setTranslationsTasks] = useState<Task[]>([]);
 
   const { data: customToken } = useInitFirebaseQuery();
@@ -259,17 +259,17 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
             }
           }
 
-          if (
-            task.task_type === 'paragraph' &&
-            task.entry_key === entry_id &&
-            !data.hasParagraphs
-          ) {
-            setParagraphTask(task);
-            setShowParagraphed(true);
-            if (task.status === 'completed' && !paragraph_content) {
-              getParagraphed({ entryKey: entry_id }).unwrap();
-            }
-          }
+          // if (
+          //   task.task_type === 'paragraph' &&
+          //   task.entry_key === entry_id &&
+          //   !data.hasParagraphs
+          // ) {
+          //   setParagraphTask(task);
+          //   setShowParagraphed(true);
+          //   if (task.status === 'completed' && !paragraph_content) {
+          //     getParagraphed({ entryKey: entry_id }).unwrap();
+          //   }
+          // }
         });
         setTranslateTaskLoading(false);
         setTranslationsTasks(newTasks.reverse());
@@ -385,7 +385,7 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
               </Button>
             )}
 
-            {!data.hasParagraphs && !paragraph_content && (
+            {/* {!data.hasParagraphs && !paragraph_content && (
               <Button
                 size="xs"
                 color="grass4"
@@ -403,7 +403,7 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
               >
                 {`${showParagraphed ? 'Hide' : 'Show'}`} Paragraphs
               </Button>
-            )}
+            )} */}
           </LeftButtons>
         )}
 
@@ -441,14 +441,15 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
         </RightButtons>
       </ButtonsWrapper>
       <TranscriptContent isRTL={RTLeftLanguages.includes(currentLang)}>
-        {paragraphTaskLoading && (
+        {/* {paragraphTaskLoading && (
           <>
             <Spinner width={25} height={25} /> {paragraphTask.description}
           </>
-        )}
-        {showParagraphed
+        )} */}
+        {/* {showParagraphed
           ? data.paragraph_content || paragraph_content
-          : data.transcript_content}
+          : data.transcript_content} */}
+        {data.transcript_content}
       </TranscriptContent>
       <Toast
         setShow={setCopied}
@@ -481,13 +482,13 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
         char_count={data.char_count}
         setSummaryTaskLoading={setSummaryTaskLoading}
       />
-      <ParagraphModal
+      {/* <ParagraphModal
         entryKey={entry_id}
         char_count={data.char_count}
         addParagraphModal={addParagraphModal}
         setAddParagraphModal={setAddParagraphModal}
         setParagraphTaskLoading={setParagraphTaskLoading}
-      />
+      /> */}
     </PageLayout>
   );
 };
