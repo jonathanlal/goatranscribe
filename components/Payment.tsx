@@ -55,7 +55,7 @@ export const Payment = ({
       //`Elements` instance that was used to create the Payment Element
       elements,
       confirmParams: {
-        return_url: `${process.env.AUTH0_BASE_URL}/balance?intent_id=${intentId}`,
+        return_url: `${window.location.origin}/balance?intent_id=${intentId}`,
       },
     });
 

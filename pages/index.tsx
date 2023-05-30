@@ -188,17 +188,7 @@ const HomePage = ({ user }: HomePageProps) => {
           </Hero>
         </LandscapeBg>
 
-        <Features>
-          <h1>No bullshit, pay as you go.</h1>
-          <h1> Transcriptions at ${COST_PER_MINUTE} per minute ($1 an hour)</h1>
-          <h1>Human level accuracy</h1>
-          <h1>Transcribe audio or video</h1>
-          <h1>Transcribe in 100+ languages</h1>
-          <h1>Translate into any language</h1>
-          <h1>Generate subtitles</h1>
-          <h1>Generate summaries</h1>
-          <h1>Transcribe 100 files at a time</h1>
-        </Features>
+        <Features />
       </FrostbyteLayout>
     </>
   );

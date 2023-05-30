@@ -2,7 +2,7 @@ import { FrostbyteProvider, NavMenuProps } from 'frostbyte';
 import { useEffect, useState } from 'react';
 import { loggedInNavBar, loggedOutNavBar } from 'config/navbar';
 import { Logo } from 'components/Logo';
-import { footerItems } from 'config/footer';
+import { loggedInFooterItems, loggedOutfooterItems } from 'config/footer';
 import { useAppDispatch, useAppSelector } from 'store/hooks';
 import { setDarkMode } from 'store/features/settings';
 import { Provider } from 'react-redux';
@@ -47,7 +47,7 @@ const FrostByteWrapper = ({ children, user }) => {
     <FrostbyteProvider
       isDarkThemeActive={darkMode}
       footer={{
-        footerItems: footerItems,
+        footerItems: user ? loggedInFooterItems : loggedOutfooterItems,
         name: 'Goatranscribe',
       }}
       navMenu={{
@@ -55,6 +55,7 @@ const FrostByteWrapper = ({ children, user }) => {
         logo: {
           comp: <Logo />,
           href: user ? '/transcribe' : '/',
+          title: 'Goatranscribe',
         },
         setDarkMode: () => dispath(setDarkMode(!darkMode)),
       }}

@@ -1,5 +1,5 @@
 import { Avatar, NavMenuProps, styled } from 'frostbyte';
-import { EnterIcon } from '@radix-ui/react-icons';
+import { EnterIcon, UploadIcon } from '@radix-ui/react-icons';
 import { Claims } from '@auth0/nextjs-auth0';
 import Spinner from 'components/Spinner';
 
@@ -9,7 +9,10 @@ const CTABtn = styled('div', {
   alignItems: 'center',
   justifyContent: 'center',
   fontWeight: 600,
-  minWidth: 65,
+  // minWidth: 65,
+  '@mdMax': {
+    width: '120px',
+  },
 
   variants: {
     loading: {
@@ -18,6 +21,12 @@ const CTABtn = styled('div', {
       },
     },
   },
+});
+
+const LinkText = styled('span', {
+  textDecoration: 'underline',
+  textUnderlineOffset: '2px',
+  color: '$blue12',
 });
 
 const WalletSvg = styled('svg', {
@@ -36,6 +45,18 @@ const Balance = styled('span', {
         color: '$purple11',
       },
     },
+  },
+});
+
+const ViewTranscriptWrapper = styled('div', {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '10px',
+
+  '& > span:first-child': {
+    height: '30px',
+    width: '30px',
   },
 });
 export const loggedOutNavBar: NavMenuProps['navItems'] = [
@@ -125,12 +146,50 @@ export const loggedInNavBar = (
 ): NavMenuProps['navItems'] => {
   return [
     {
-      type: 'link', //need a new type avatar
+      type: 'button',
+      button: {
+        color: 'green9',
+        // kind: 'success',
+        outlined: true,
+        borderRadius: 'sm',
+      },
       label: (
-        <Avatar src={user.picture} alt={user.name} fallBackText={user.name} />
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '10px',
+          }}
+        >
+          <UploadIcon width={30} height={30} />
+          <span>Transcribe</span>
+        </div>
+      ),
+      href: '/transcribe',
+    },
+    {
+      type: 'button',
+      button: {
+        color: 'purple5',
+        // outlined: true,
+      },
+      label: (
+        <ViewTranscriptWrapper>
+          <Avatar src={user.picture} alt={user.name} fallBackText={user.name} />
+          <span>View Transcripts</span>
+        </ViewTranscriptWrapper>
       ),
       href: '/transcripts',
     },
+
+    // {
+    //   type: 'link', //need a new type avatar
+    //   label: (
+    //     <Avatar src={user.picture} alt={user.name} fallBackText={user.name} />
+    //   ),
+    //   href: '/transcripts',
+    // },
     {
       type: 'darkmode',
       label: 'Toggle Dark Mode',
