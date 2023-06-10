@@ -16,7 +16,7 @@ export const loggedInFooterItems: FooterProps['footerItems'] = [
         href: '/transcribe',
       },
       {
-        label: 'View Transcripts',
+        label: 'Transcripts',
         href: '/transcripts',
       },
 
@@ -67,10 +67,10 @@ export const loggedOutfooterItems: FooterProps['footerItems'] = [
         label: 'Login',
         href: '/api/auth/login',
       },
-      {
-        label: 'Logout',
-        href: '/api/auth/logout',
-      },
+      // {
+      //   label: 'Logout',
+      //   href: '/api/auth/logout',
+      // },
       // {
       //   label: 'Contact',
       //   href: '/contact',

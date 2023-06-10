@@ -319,7 +319,7 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
             Total cost: <b>${cost}</b>
           </P>
           <P>
-            Total duration: <b>{totalDuration}</b>
+            Audio duration: <b>{totalDuration}</b>
           </P>
           <P
             css={{

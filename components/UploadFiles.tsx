@@ -1,4 +1,4 @@
-import { Button, H, P } from 'frostbyte';
+import { Button, H, P, Seperator } from 'frostbyte';
 import { Dropzone } from './Dropzone';
 import {
   useLazyGetUploadUrlQuery,
@@ -17,11 +17,14 @@ import { getAudioDurationFromFile } from 'utils/getAudioDurationFromFile';
 import { formatBytes } from 'utils/formatBytes';
 import { UploadIcon } from '@radix-ui/react-icons';
 import { TitleWithIconWrapper } from 'styles/shared';
+import { Uploads } from './Uploads';
+import { useAppSelector } from 'store/hooks';
 
 export const UploadFiles = () => {
   const [getUploads] = useLazyGetUploadsQuery();
   const [getUploadUrl] = useLazyGetUploadUrlQuery();
   const [uploadCompleted] = useUploadCompletedMutation();
+  const hasUploads = useAppSelector((state) => state.user.uploads.length > 0);
 
   const [status, setStatus] = useImmer<MultipleUploadsStatus>({});
 
@@ -130,6 +133,23 @@ export const UploadFiles = () => {
 
   return (
     <>
+      {!hasUploads && (
+        <div style={{ textAlign: 'center', margin: '30px 0' }}>
+          <H
+            color="purple9"
+            css={{
+              display: 'block',
+              lineHeight: '1.2',
+            }}
+            as="h1"
+            size={40}
+          >
+            Welcome, start by adding some files
+          </H>
+          <Seperator color="purple8" css={{ margin: '20px auto' }} />
+          <br />
+        </div>
+      )}
       <TitleWithIconWrapper>
         <UploadIcon width={30} height={30} />{' '}
         <H color="purple9">Upload files:</H>

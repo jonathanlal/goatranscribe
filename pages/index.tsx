@@ -19,6 +19,7 @@ import { Dropzone } from 'components/Dropzone';
 import { Features } from 'components/Features';
 import { COST_PER_MINUTE } from 'utils/constants';
 import { GetServerSidePropsContext } from 'next';
+import { CTABanner } from 'components/CTABanner';
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getSession(ctx.req, ctx.res);
@@ -127,11 +128,15 @@ const HomePage = ({ user }: HomePageProps) => {
                 as="h3"
                 color="purple11"
                 css={{
-                  lineHeight: 1,
+                  lineHeight: 1.2,
+                  marginTop: '40px',
+                  '@mdMax': {
+                    marginTop: '25px',
+                  },
                 }}
               >
                 <span>
-                  Convert audio to text online with <i>Goatranscribe</i>
+                  Convert Audio to text online with <i>Goatranscribe</i>
                 </span>
               </H>
               <br />
@@ -189,6 +194,7 @@ const HomePage = ({ user }: HomePageProps) => {
         </LandscapeBg>
 
         <Features />
+        <CTABanner />
       </FrostbyteLayout>
     </>
   );

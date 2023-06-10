@@ -29,7 +29,9 @@ export const balance = api.injectEndpoints({
         id: string;
         amount: number;
         description: string;
-        created: string;
+        date: string;
+        is_cost: boolean;
+        new_balance: number;
       }[],
       void
     >({

@@ -1,9 +1,22 @@
-import { H, useFrostbyte } from 'frostbyte';
+import { H, styled, useFrostbyte } from 'frostbyte';
 import { useGetTransactionsQuery } from 'store/services/balance';
 import { CustomTable } from './CustomTable';
 import { formatDistanceToNow } from 'date-fns';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
+const Amount = styled('span', {
+  fontWeight: 700,
+  variants: {
+    isNegative: {
+      true: {
+        color: '$red9',
+      },
+      false: {
+        color: '$green9',
+      },
+    },
+  },
+});
 export const Transactions = () => {
   const { data, isFetching, isSuccess } = useGetTransactionsQuery();
   const { isDarkTheme } = useFrostbyte();
@@ -29,15 +42,14 @@ export const Transactions = () => {
       {isSuccess && (
         <>
           <CustomTable
-            headerItems={['Description', 'Amount', 'Time']}
+            headerItems={['Transaction', 'Amount', 'Time', 'Balance']}
             items={data.map((t) => ({
               entry_id: t.id,
               data: [
                 t.description,
-                `$${t.amount}`,
-                formatDistanceToNow(new Date(parseInt(t.created) * 1000), {
-                  addSuffix: true,
-                }),
+                <Amount isNegative={t.is_cost}>${t.amount}</Amount>,
+                t.date,
+                `$${t.new_balance}`,
               ],
             }))}
           />

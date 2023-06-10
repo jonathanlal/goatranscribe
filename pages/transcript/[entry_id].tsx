@@ -385,16 +385,16 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
               </Button>
             )}
 
-            {/* {!data.hasParagraphs && !paragraph_content && ( */}
-            <Button
-              size="xs"
-              color="grass4"
-              // onClick={() => setAddParagraphModal(true)}
-              // disabled={paragraphTaskLoading}
-            >
-              + Add paragraphs
-            </Button>
-            {/* )} */}
+            {/* {!data.hasParagraphs && !paragraph_content && (
+              <Button
+                size="xs"
+                color="grass4"
+                onClick={() => setAddParagraphModal(true)}
+                disabled={paragraphTaskLoading}
+              >
+                + Add paragraphs
+              </Button>
+            )} */}
             {/* {(data.hasParagraphs || paragraph_content) && (
               <Button
                 size="xs"

@@ -10,14 +10,23 @@ const CTABtn = styled('div', {
   justifyContent: 'center',
   fontWeight: 600,
   // minWidth: 65,
+  // maxWidth: 'unset',
+  // gap: '10px',
   '@mdMax': {
-    width: '120px',
+    minWidth: '90px',
   },
 
   variants: {
     loading: {
       true: {
         gridTemplateColumns: 'auto',
+      },
+    },
+    isBalance: {
+      true: {
+        '@mdMax': {
+          minWidth: '115px',
+        },
       },
     },
   },
@@ -177,7 +186,7 @@ export const loggedInNavBar = (
       label: (
         <ViewTranscriptWrapper>
           <Avatar src={user.picture} alt={user.name} fallBackText={user.name} />
-          <span>View Transcripts</span>
+          <span>Transcripts</span>
         </ViewTranscriptWrapper>
       ),
       href: '/transcripts',
@@ -198,7 +207,7 @@ export const loggedInNavBar = (
       href: '/balance',
       type: 'button',
       label: (
-        <CTABtn loading={balance === undefined}>
+        <CTABtn loading={balance === undefined} isBalance={true}>
           {balance !== undefined ? (
             <>
               <WalletSvg
