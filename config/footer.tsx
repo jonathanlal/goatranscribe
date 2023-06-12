@@ -12,6 +12,10 @@ export const loggedInFooterItems: FooterProps['footerItems'] = [
     type: 'links',
     items: [
       {
+        label: 'Add to Balance',
+        href: '/balance',
+      },
+      {
         label: 'Transcribe',
         href: '/transcribe',
       },
@@ -21,8 +25,8 @@ export const loggedInFooterItems: FooterProps['footerItems'] = [
       },
 
       {
-        label: 'Add to Balance',
-        href: '/balance',
+        label: 'Settings',
+        href: '/settings',
       },
       // {
       //   label: 'Privacy',

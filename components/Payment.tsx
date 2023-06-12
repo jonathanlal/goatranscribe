@@ -158,7 +158,7 @@ export const Payment = ({
               },
             }}
           >
-            Add Funds
+            ✨ Add Funds
           </Button>
         )}
 
