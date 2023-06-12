@@ -14,5 +14,5 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery,
   endpoints: () => ({}),
-  tagTypes: ['uploads', 'balance'],
+  tagTypes: ['uploads', 'balance', 'settings'],
 });

@@ -1,4 +1,4 @@
-import { H, styled, useFrostbyte } from 'frostbyte';
+import { H, P, styled, useFrostbyte } from 'frostbyte';
 import { useGetTransactionsQuery } from 'store/services/balance';
 import { CustomTable } from './CustomTable';
 import { formatDistanceToNow } from 'date-fns';
@@ -39,22 +39,34 @@ export const Transactions = () => {
           />
         </SkeletonTheme>
       )}
-      {isSuccess && (
-        <>
-          <CustomTable
-            headerItems={['Transaction', 'Amount', 'Time', 'Balance']}
-            items={data.map((t) => ({
-              entry_id: t.id,
-              data: [
-                t.description,
-                <Amount isNegative={t.is_cost}>${t.amount}</Amount>,
-                t.date,
-                `$${t.new_balance}`,
-              ],
-            }))}
-          />
-        </>
-      )}
+      {isSuccess &&
+        (data.length > 0 ? (
+          <>
+            <CustomTable
+              headerItems={['Transaction', 'Amount', 'Time', 'Balance']}
+              items={data.map((t) => ({
+                entry_id: t.id,
+                data: [
+                  t.description,
+                  <Amount isNegative={t.is_cost}>${t.amount}</Amount>,
+                  t.date,
+                  `$${t.new_balance}`,
+                ],
+              }))}
+            />
+          </>
+        ) : (
+          <div
+            style={{
+              textAlign: 'center',
+              margin: '20px 0',
+            }}
+          >
+            <P size="20" color="mauve9">
+              No transactions to show yet
+            </P>
+          </div>
+        ))}
     </>
   );
 };

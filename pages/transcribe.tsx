@@ -7,23 +7,35 @@ import { Uploads } from 'components/Uploads';
 import { Upload } from 'interfaces/Upload';
 import Head from 'next/head';
 import { TasksStatus } from 'components/TasksStatus';
+import { Settings } from 'interfaces/Settings';
+import { useState } from 'react';
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
     const { req, res } = ctx;
     const session = await getSession(req, res);
 
-    const { data } = await makeRequestSS({
+    const { data: uploads } = await makeRequestSS({
       req,
       res,
       endpoint: 'uploads',
     });
-    const uploads = data as Upload[];
+    // const uploads = data as Upload[];
+
+    const { data: settings } = await makeRequestSS({
+      req,
+      res,
+      endpoint: 'get_settings',
+    });
+    // const uploads = data as Upload[];
+
+    // console.log('settings', settings);
 
     return {
       props: {
         user: session.user,
-        ssUploads: uploads || [],
+        ssUploads: (uploads as Upload[]) || [],
+        ssSettings: (settings as Settings) || null,
       },
     };
   },
@@ -32,6 +44,7 @@ export const getServerSideProps = withPageAuthRequired({
 type HomePageProps = {
   user: Claims;
   ssUploads: Upload[];
+  ssSettings: Settings;
 };
 
 const Layout = styled('div', {
@@ -39,7 +52,10 @@ const Layout = styled('div', {
   minHeight: '100vh',
 });
 
-const Profile = ({ user, ssUploads }: HomePageProps) => {
+const Profile = ({ user, ssUploads, ssSettings }: HomePageProps) => {
+  const [settings, setSettings] = useState<Settings>(ssSettings);
+
+  // console.log('settings', settings);
   return (
     <>
       <Head>
@@ -49,7 +65,7 @@ const Profile = ({ user, ssUploads }: HomePageProps) => {
         <Layout>
           <TasksStatus user={user} />
           <Uploads ssUploads={ssUploads} />
-          <UploadFiles />
+          <UploadFiles settings={settings} setSettings={setSettings} />
         </Layout>
       </FrostbyteLayout>
     </>

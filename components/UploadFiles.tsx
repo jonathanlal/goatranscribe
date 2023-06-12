@@ -19,11 +19,13 @@ import { UploadIcon } from '@radix-ui/react-icons';
 import { TitleWithIconWrapper } from 'styles/shared';
 import { Uploads } from './Uploads';
 import { useAppSelector } from 'store/hooks';
+import { useSeenUploadsWelcomeMutation } from 'store/services/settings';
 
-export const UploadFiles = () => {
+export const UploadFiles = ({ settings, setSettings }) => {
   const [getUploads] = useLazyGetUploadsQuery();
   const [getUploadUrl] = useLazyGetUploadUrlQuery();
   const [uploadCompleted] = useUploadCompletedMutation();
+  const [seenUploadsWelcome] = useSeenUploadsWelcomeMutation();
   const hasUploads = useAppSelector((state) => state.user.uploads.length > 0);
 
   const [status, setStatus] = useImmer<MultipleUploadsStatus>({});
@@ -88,6 +90,12 @@ export const UploadFiles = () => {
       });
 
       await uploadCompleted({ entryKey }).unwrap();
+
+      seenUploadsWelcome();
+      setSettings((prevSettings) => ({
+        ...prevSettings,
+        uploads_welcome: true,
+      }));
     } catch (error) {
       console.error('Error uploading data:', error);
       throw error;
@@ -133,7 +141,7 @@ export const UploadFiles = () => {
 
   return (
     <>
-      {!hasUploads && (
+      {!settings.uploads_welcome && (
         <div style={{ textAlign: 'center', margin: '30px 0' }}>
           <H
             color="purple9"
@@ -144,7 +152,7 @@ export const UploadFiles = () => {
             as="h1"
             size={40}
           >
-            Welcome, start by adding some files
+            Welcome, start by adding files below.
           </H>
           <Seperator color="purple8" css={{ margin: '20px auto' }} />
           <br />

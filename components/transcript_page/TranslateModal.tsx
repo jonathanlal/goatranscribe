@@ -7,6 +7,7 @@ import { useTranslateEntriesMutation } from 'store/services/translate';
 import { COST_PER_CHARACTER } from 'utils/constants';
 import { LANGUAGES, LanguageCode } from 'utils/translateLanguages';
 import { CSSTransition } from 'react-transition-group';
+import { StyledItem } from 'styles/shared';
 
 // padding: 10px;
 // color: #555;
@@ -25,24 +26,6 @@ import { CSSTransition } from 'react-transition-group';
 // :hover {
 //   background: #f2f2f2;
 // }
-
-const StyledItem = styled('div', {
-  padding: '10px',
-  color: '#555',
-  borderRadius: '3px',
-  margin: '3px',
-  cursor: 'pointer',
-  '& > div': {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  input: {
-    marginRight: '10px',
-  },
-  '& :hover': {
-    background: '#f2f2f2',
-  },
-});
 
 const PrimaryPanel = styled('div', {
   textAlign: 'center',

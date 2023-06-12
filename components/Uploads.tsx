@@ -288,12 +288,6 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
 
   return (
     <>
-      {!hasFunds && (
-        <ErrorPanel onClick={() => router.push('/balance')}>
-          Insufficient funds <span>click here</span> to add to your wallet
-        </ErrorPanel>
-      )}
-
       {/* {cost > 0 && ( */}
       <CSSTransition
         in={cost > 0}
@@ -321,21 +315,35 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
           <P>
             Audio duration: <b>{totalDuration}</b>
           </P>
-          <P
-            css={{
-              margin: '15px 0',
-            }}
-            color="mauve9"
-            size="19"
-          >
-            Click to start transcribing{' '}
-            {checkedUploads.length > 0
-              ? checkedUploads.length === 1
-                ? '1 file:'
-                : `${checkedUploads.length} files:`
-              : ''}
-          </P>
-          <TranscribeButton />
+          {!hasFunds ? (
+            <ErrorPanel
+              onClick={() => router.push('/balance')}
+              css={{
+                marginTop: '20px',
+                marginBottom: 0,
+              }}
+            >
+              Insufficient funds <span>click here</span> to add to your wallet
+            </ErrorPanel>
+          ) : (
+            <>
+              <P
+                css={{
+                  margin: '15px 0',
+                }}
+                color="mauve9"
+                size="19"
+              >
+                Click to start transcribing{' '}
+                {checkedUploads.length > 0
+                  ? checkedUploads.length === 1
+                    ? '1 file:'
+                    : `${checkedUploads.length} files:`
+                  : ''}
+              </P>
+              <TranscribeButton />
+            </>
+          )}
         </PrimaryPanel>
       </CSSTransition>
       {/* )} */}

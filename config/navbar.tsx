@@ -11,9 +11,10 @@ const CTABtn = styled('div', {
   fontWeight: 600,
   // minWidth: 65,
   // maxWidth: 'unset',
-  // gap: '10px',
+
   '@mdMax': {
     minWidth: '90px',
+    // gap: '0px',
   },
 
   variants: {
@@ -24,9 +25,9 @@ const CTABtn = styled('div', {
     },
     isBalance: {
       true: {
-        '@mdMax': {
-          minWidth: '115px',
-        },
+        // '@mdMax': {
+        //   minWidth: '115px',
+        // },
       },
     },
   },
@@ -42,6 +43,9 @@ const WalletSvg = styled('svg', {
   // color: '$purple12',
   color: '$purple11',
   marginRight: 10,
+  '@mdMax': {
+    marginRight: 0,
+  },
 });
 
 const Balance = styled('span', {
@@ -136,6 +140,7 @@ export const loggedOutNavBar: NavMenuProps['navItems'] = [
           style={{
             marginTop: 3,
             width: 25,
+            marginRight: 10,
           }}
         />
         <span>App</span>
