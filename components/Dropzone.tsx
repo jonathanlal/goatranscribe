@@ -173,11 +173,23 @@ export const Dropzone = ({
 
     // autoFocus: true,
     accept: {
-      'audio/mpeg': ['.mp3'],
+      'audio/aac': ['.aac'],
+      'audio/flac': ['.flac'],
+      'audio/mpeg': ['.mp3', '.mpg', '.mpeg'],
       'audio/mp4': ['.m4a'],
+      'audio/ogg': ['.ogg', '.oga'],
       'audio/wav': ['.wav'],
-      'video/mp4': ['.mp4'],
-      'video/mpeg': ['.mpeg'],
+      'audio/webm': ['.webm'],
+      'audio/x-matroska': ['.mka'],
+      'video/mp4': ['.mp4', '.m4v'],
+      'video/mpeg': ['.mpeg', '.mpg'],
+      'video/ogg': ['.ogv'],
+      'video/webm': ['.webm'],
+      'video/x-matroska': ['.mkv'],
+      'video/x-flv': ['.flv'],
+      'video/3gpp': ['.3gp', '.3g2'],
+      'video/quicktime': ['.mov'],
+      'video/x-msvideo': ['.avi'],
     },
     disabled: status
       ? status.length > 0
