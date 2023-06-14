@@ -1,4 +1,9 @@
+import { styled } from 'frostbyte';
 import React from 'react';
+
+const StyledSpinner = styled('svg', {
+  minWidth: 25,
+});
 
 const Spinner = ({
   height,
@@ -15,7 +20,7 @@ const Spinner = ({
   };
 
   return (
-    <svg
+    <StyledSpinner
       height={height || 24}
       width={width || 24}
       stroke={color || 'currentColor'}
@@ -59,7 +64,7 @@ const Spinner = ({
           }}
         ></circle>
       </g>
-    </svg>
+    </StyledSpinner>
   );
 };
 

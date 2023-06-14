@@ -40,12 +40,12 @@ const LinkText = styled('span', {
 });
 
 const WalletSvg = styled('svg', {
-  // color: '$purple12',
   color: '$purple11',
   marginRight: 10,
-  '@mdMax': {
-    marginRight: 0,
-  },
+  minWidth: 25,
+  // '@mdMax': {
+  //   marginRight: 0,
+  // },
 });
 
 const Balance = styled('span', {
