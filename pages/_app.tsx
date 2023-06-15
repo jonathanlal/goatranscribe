@@ -6,6 +6,9 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { persistor, store } from 'store/store';
 import FrostbyteLayout from 'components/FrostbyteLayout';
 import { useState } from 'react';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ weight: '400', subsets: ['latin'] });
 
 export default function App({ Component, pageProps }) {
   // const [isPersistorLoaded, setIsPersistorLoaded] = useState(false);
@@ -28,9 +31,14 @@ export default function App({ Component, pageProps }) {
               </FrostbyteLayout>
             </PersistGate>
           ) : ( */}
-
-        <Component {...pageProps} />
-
+        {/* <style jsx global>{`
+          html {
+            font-family: ${aclonica.style.fontFamily};
+          }
+        `}</style> */}
+        <main className={inter.className}>
+          <Component {...pageProps} />
+        </main>
         {/* )} */}
       </UserProvider>
       {/* </Provider> */}
