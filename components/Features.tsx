@@ -84,6 +84,8 @@ const Wave = styled('svg', {
   position: 'absolute',
   // width: '100%',
   // bottom: '-40px',
+  // backgroundColor: '$red8',
+
   bottom: 0,
   zIndex: '1',
   color: '$purple11',
@@ -154,7 +156,7 @@ const Card = styled('div', {
 // });
 const CardContent = styled('div', {
   textAlign: 'center',
-  // border: '1px solid black',
+  height: '100%',
 
   justifyContent: 'center',
   margin: '20px 0',
@@ -185,8 +187,7 @@ const CardContent = styled('div', {
 
 const CardBody = styled('div', {
   position: 'relative',
-  // border: '1px solid red',
-  // borderRadius: '.5rem',
+  height: '100%',
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
