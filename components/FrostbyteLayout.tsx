@@ -47,13 +47,15 @@ const FrostByteWrapper = ({ children, user }) => {
     <FrostbyteProvider
       isDarkThemeActive={darkMode}
       footer={{
-        footerItems: user ? loggedInFooterItems : loggedOutfooterItems,
+        footerItems: user
+          ? loggedInFooterItems({ darkMode })
+          : loggedOutfooterItems({ darkMode }),
         name: 'Goatranscribe',
       }}
       navMenu={{
         navItems: user ? navItems : loggedOutNavBar,
         logo: {
-          comp: <Logo />,
+          comp: <Logo isDarkMode={darkMode} />,
           href: user ? '/transcribe' : '/',
           title: 'Goatranscribe',
         },
