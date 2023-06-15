@@ -17,9 +17,9 @@ import Link from 'next/link';
 import { LandscapeBg } from 'components/LandscapeBg';
 import { Dropzone } from 'components/Dropzone';
 import { Features } from 'components/Features';
-import { COST_PER_MINUTE } from 'utils/constants';
 import { GetServerSidePropsContext } from 'next';
 import { CTABanner } from 'components/CTABanner';
+import { Bird } from 'components/home_page/Bird';
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getSession(ctx.req, ctx.res);
@@ -107,11 +107,18 @@ const HomePage = ({ user }: HomePageProps) => {
       <FrostbyteLayout user={user}>
         <LandscapeBg>
           <Hero isDarkTheme={false}>
-            <div
+            {/* <div
               className={`${styles.birdContainer} ${styles.birdContainerOne}`}
             >
               <div className={`${styles.bird} ${styles.birdOne}`}></div>
-            </div>
+            </div> */}
+            <Bird styles={styles} />
+
+            {/* <div
+              className={`${styles.birdContainer} ${styles.birdContainerFour}`}
+            >
+              <div className={`${styles.bird} ${styles.birdFour}`}></div>
+            </div> */}
 
             <div
               style={{

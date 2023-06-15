@@ -1,11 +1,13 @@
 import { FooterProps } from 'frostbyte';
 import { Logo } from '../components/Logo';
 
-export const loggedInFooterItems: FooterProps['footerItems'] = [
+export const loggedInFooterItems = ({
+  darkMode,
+}): FooterProps['footerItems'] => [
   {
     type: 'logo',
-    description: 'Goatranscribe',
-    comp: <Logo />,
+    // description: 'Goatranscribe',
+    comp: <Logo isDarkMode={darkMode} />,
   },
   {
     label: 'Links',
@@ -28,6 +30,10 @@ export const loggedInFooterItems: FooterProps['footerItems'] = [
         label: 'Settings',
         href: '/settings',
       },
+      {
+        label: 'Logout',
+        href: '/api/auth/logout',
+      },
       // {
       //   label: 'Privacy',
       //   href: '/privacy',
@@ -43,25 +49,33 @@ export const loggedInFooterItems: FooterProps['footerItems'] = [
     type: 'links',
     items: [
       {
-        label: 'Logout',
-        href: '/api/auth/logout',
-      },
-      {
         label: 'Support',
         href: '/support',
       },
+
       {
         label: 'Feature request',
         href: '/support',
       },
+
+      {
+        label: 'Privacy Policy',
+        href: '/privacy-policy',
+      },
+      {
+        label: 'Terms And Conditions',
+        href: '/terms-and-conditions',
+      },
     ],
   },
 ];
-export const loggedOutfooterItems: FooterProps['footerItems'] = [
+export const loggedOutfooterItems = ({
+  darkMode,
+}): FooterProps['footerItems'] => [
   {
     type: 'logo',
-    description: 'Goatranscribe',
-    comp: <Logo />,
+    // description: 'Goatranscribe',
+    comp: <Logo isDarkMode={darkMode} />,
   },
   {
     label: 'Links',
@@ -70,6 +84,16 @@ export const loggedOutfooterItems: FooterProps['footerItems'] = [
       {
         label: 'Login',
         href: '/api/auth/login',
+      },
+
+      {
+        label: 'Privacy Policy',
+        href: '/privacy-policy',
+      },
+
+      {
+        label: 'Terms And Conditions',
+        href: '/terms-and-conditions',
       },
       // {
       //   label: 'Logout',
