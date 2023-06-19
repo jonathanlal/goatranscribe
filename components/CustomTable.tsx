@@ -62,19 +62,24 @@ export const Row = ({
 export const CustomTable = ({
   headerItems,
   items,
-  onClick,
+  // onClick,
   color = 'purple',
 }: {
   headerItems: Item[];
-  items: { entry_id?: string; data: Item[]; disabled?: boolean }[];
-  onClick?: (entry_id: string) => void;
+  items: {
+    entry_id?: string;
+    data: Item[];
+    disabled?: boolean;
+    onClick?: () => void;
+  }[];
+  // onClick?: (entry_id: string) => void;
   color?: string;
 }) => {
   return (
     <Table color={color}>
       <THeader items={headerItems} color={color} />
       <TBody>
-        {items.map(({ entry_id, data, disabled }) => (
+        {items.map(({ entry_id, data, disabled, onClick }) => (
           <Row
             disabled={disabled}
             color={color}

@@ -27,6 +27,13 @@ export const transcribe = api.injectEndpoints({
         body: { taskIds },
       }),
     }),
+    retryFailedTranscribe: build.mutation<void, { entryKey: string }>({
+      query: ({ entryKey }) => ({
+        url: `retry_failed_transcribe`,
+        method: 'POST',
+        body: { entryKey },
+      }),
+    }),
     getTranscribeStatus: build.query<
       { status: string; output: string },
       { transcribeTaskId: string; entryKeys: string[] }
@@ -48,11 +55,13 @@ export const {
   useGetTranscribeStatusQuery,
   useTranscriptsSeenMutation,
   useTranscriptSeenQuery,
+  useRetryFailedTranscribeMutation,
 } = transcribe;
 
 export const {
   endpoints: {
     transcribeEntries,
+    retryFailedTranscribe,
     getTranscribeStatus,
     transcriptSeen,
     transcriptsSeen,

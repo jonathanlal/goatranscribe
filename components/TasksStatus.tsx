@@ -8,7 +8,10 @@ import { useAppDispatch, useAppSelector } from 'store/hooks';
 import { CustomTable, Item } from './CustomTable';
 import { formatDistanceToNow, formatDuration, parseISO } from 'date-fns';
 import { useRouter } from 'next/router';
-import { useTranscriptsSeenMutation } from 'store/services/transcribe';
+import {
+  useRetryFailedTranscribeMutation,
+  useTranscriptsSeenMutation,
+} from 'store/services/transcribe';
 import { Button, H, P, Seperator, styled, useFrostbyte } from 'frostbyte';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
 import { CSSTransition } from 'react-transition-group';
@@ -20,6 +23,18 @@ import { TitleWithIconWrapper } from 'styles/shared';
 import { Link2Icon } from '@radix-ui/react-icons';
 import 'react-loading-skeleton/dist/skeleton.css';
 import { useLazyGetUploadsQuery } from 'store/services/upload';
+
+const RetryContainer = styled('div', {
+  cursor: 'pointer',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  gap: '5px',
+  zIndex: 1,
+  '&:hover': {
+    color: '$primary',
+  },
+});
 
 const firebaseConfig = {
   apiKey: 'AIzaSyCOpqGCG4G7YUFKAjhnpTQavD5NtnRtnis',
@@ -55,6 +70,7 @@ export const TasksStatus = ({ user }) => {
   const router = useRouter();
   const { data: customToken } = useInitFirebaseQuery();
   const [markAllAsSeen] = useTranscriptsSeenMutation();
+  const [retryTranscribe] = useRetryFailedTranscribeMutation();
   const [getUploads] = useLazyGetUploadsQuery();
   const { uploads } = useAppSelector((state) => state.user);
   if (customToken) {
@@ -106,6 +122,17 @@ export const TasksStatus = ({ user }) => {
     'download_failed',
   ];
   const hasError = (status: string) => error_statuses.includes(status);
+
+  const disabled_statuses = [
+    'encoding',
+    'downloading_file',
+    'chunking',
+    'transcribing',
+    'uploading_subtitles',
+    'uploading_transcript',
+    'detecting_language',
+  ];
+  const isDisabled = (status: string) => disabled_statuses.includes(status);
 
   const showMarkAsSeen = tasks.some((task) => task.status === 'completed');
 
@@ -181,7 +208,10 @@ export const TasksStatus = ({ user }) => {
                 : { data: [] },
               ...tasks.map((t) => ({
                 entry_id: t.entry_key,
-                disabled: t.status !== 'completed',
+                disabled: isDisabled(t.status),
+                onClick: hasError(t.status)
+                  ? () => retryTranscribe({ entryKey: t.entry_key })
+                  : () => router.push(`/transcript/${t.entry_key}`),
                 data: [
                   t.file_name,
                   t.date_started
@@ -201,14 +231,16 @@ export const TasksStatus = ({ user }) => {
                       }
                     )
                   ) : hasError(t.status) ? (
-                    <ExclamationTriangleIcon width={20} height={20} />
+                    <RetryContainer>
+                      <ExclamationTriangleIcon width={20} height={20} />
+                      Retry
+                    </RetryContainer>
                   ) : (
                     <Spinner />
                   ),
                 ],
               })),
             ]}
-            onClick={(entry_id) => router.push(`/transcript/${entry_id}`)}
           />
           <Seperator color="indigo8" css={{ marginTop: '25px' }} />
 
