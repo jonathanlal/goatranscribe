@@ -70,7 +70,7 @@ export const CustomTable = ({
     entry_id?: string;
     data: Item[];
     disabled?: boolean;
-    onClick?: () => void;
+    onClick?: (entry_id?: string) => void | Promise<boolean>;
   }[];
   // onClick?: (entry_id: string) => void;
   color?: string;

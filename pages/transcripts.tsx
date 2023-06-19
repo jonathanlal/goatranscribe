@@ -144,8 +144,9 @@ const Transcripts = ({ user, files }: HomePageProps) => {
                   }),
                   file.word_count,
                 ],
+                onClick: (entry_id: string) =>
+                  router.push(`/transcript/${entry_id}`),
               }))}
-              onClick={(entry_id) => router.push(`/transcript/${entry_id}`)}
             />
           </>
         )}
