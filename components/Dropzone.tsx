@@ -152,7 +152,8 @@ export const Dropzone = ({
   multipleStatus,
 }: {
   hasFinishedUploading?: boolean;
-  status?: UploadStatus[];
+  // status?: UploadStatus[];
+  status?: MultipleUploadsStatus;
   maxFiles: number;
   multiple: boolean;
   setFiles: (files: File[]) => void;
@@ -191,8 +192,11 @@ export const Dropzone = ({
       'video/quicktime': ['.mov'],
       'video/x-msvideo': ['.avi'],
     },
+    // disabled: status
+    //   ? status.length > 0
+    //   : Object.keys(multipleStatus).length > 0,
     disabled: status
-      ? status.length > 0
+      ? Object.keys(status).length > 0
       : Object.keys(multipleStatus).length > 0,
   });
 
@@ -276,8 +280,8 @@ export const Dropzone = ({
               </FileItemStatus>
             );
           })}
-
-        {status && status.length > 0 && (
+        {/* {status && status.length > 0 && ( */}
+        {status && Object.keys(status).length > 0 && (
           <StatusList>
             {Object.keys(status).map((key) => (
               <StatusListItem key={key}>
@@ -285,10 +289,22 @@ export const Dropzone = ({
                   {status[key].description}{' '}
                   {status[key]?.timeTaken && `(${status[key]?.timeTaken}s)`}
                 </p>
-                {status[key].currentStatus === 'loading' ? (
-                  <Spinner />
-                ) : (
+                {status[key].currentStatus === 'loading' && <Spinner />}
+                {status[key].currentStatus === 'success' && (
                   <StyledCheckCircledIcon />
+                )}
+                {status[key].currentStatus === 'progress' && (
+                  <p
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: '10px',
+                    }}
+                  >
+                    {status[key].uploadProgress != 100 && <Spinner />}
+                    {status[key].uploadProgress}%
+                  </p>
                 )}
               </StatusListItem>
             ))}

@@ -16,7 +16,8 @@ const Container = styled('div', {
   justifyContent: 'space-between',
   borderRadius: '5px',
   boxShadow: '$colors$purple8 0px 0px 0px 1px',
-  background: 'rgb(153, 86, 213, 0.1)',
+  // background: 'rgb(153, 86, 213, 0.1)',
+  backgroundColor: '$purple4',
 
   '& .rhap_container': {
     backgroundColor: 'rgba(181, 134, 223, 0.1)',
@@ -25,7 +26,8 @@ const Container = styled('div', {
 
 const Transcript = styled('div', {
   margin: '15px',
-  background: 'rgb(153, 86, 213, 0.1)',
+  // background: 'rgb(153, 86, 213, 0.1)',
+  backgroundColor: '$purple6',
   padding: '15px',
   borderRadius: '5px',
   textAlign: 'left',

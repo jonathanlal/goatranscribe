@@ -91,7 +91,7 @@ export const UploadFiles = ({ settings, setSettings }) => {
 
       await uploadCompleted({ entryKey }).unwrap();
 
-      seenUploadsWelcome();
+      seenUploadsWelcome(); //we should only do this first upload
       setSettings((prevSettings) => ({
         ...prevSettings,
         uploads_welcome: true,

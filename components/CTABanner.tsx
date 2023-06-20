@@ -108,6 +108,7 @@ export const CTABanner = () => {
         css={{
           zIndex: 1,
           fontWeight: 'bold',
+          letterSpacing: '1px',
         }}
       >
         Start now 🚀

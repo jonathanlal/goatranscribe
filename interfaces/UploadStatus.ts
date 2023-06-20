@@ -2,7 +2,7 @@ export type UploadStatusKey = 'upload' | 'transcribe' | 'url' | 'oneMinute';
 
 export type UploadStatusFields = {
   description: string;
-  currentStatus: 'loading' | 'success' | 'error';
+  currentStatus: 'loading' | 'success' | 'error' | 'progress';
   timeTaken?: number;
   uploadProgress?: number;
   fileName?: string;

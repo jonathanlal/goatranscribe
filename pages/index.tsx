@@ -8,6 +8,7 @@ import Head from 'next/head';
 import { tryGoat } from 'utils/try';
 import styles from 'styles/Home.module.css';
 import {
+  MultipleUploadsStatus,
   UploadStatus,
   UploadStatusFields,
   UploadStatusKey,
@@ -20,6 +21,7 @@ import { Features } from 'components/Features';
 import { GetServerSidePropsContext } from 'next';
 import { CTABanner } from 'components/CTABanner';
 import { Bird } from 'components/home_page/Bird';
+import { EnterIcon } from '@radix-ui/react-icons';
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getSession(ctx.req, ctx.res);
@@ -48,7 +50,7 @@ const Hero = styled('div', {
 });
 
 const StyledLink = styled(Link, {
-  color: '$black',
+  color: '$purple7',
   fontWeight: 'bold',
 });
 
@@ -65,26 +67,40 @@ const TryContainer = styled('div', {
 
 const HomePage = ({ user }: HomePageProps) => {
   const [response, setResponse] = useState<TranscribeResponse>(null);
-  const [status, setStatus] = useImmer<UploadStatus[]>([]);
+  const [status, setStatus] = useImmer<MultipleUploadsStatus>({});
   const [hasStarted, setHasStarted] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
 
-  const updateStatus = (
-    key: UploadStatusKey,
+  // const updateStatus = (
+  //   key: UploadStatusKey,
+  //   statusUpdate: UploadStatusFields
+  // ) => {
+  //   setStatus((statuses) => {
+  //     const newStatus = statuses[key];
+  //     if (newStatus) {
+  //       newStatus.currentStatus = statusUpdate.currentStatus;
+  //       newStatus.description = statusUpdate.description;
+  //       newStatus.timeTaken = statusUpdate.timeTaken;
+  //     } else {
+  //       return {
+  //         ...statuses,
+  //         [key]: statusUpdate,
+  //       };
+  //     }
+  //   });
+  // };
+
+  const updateProgressStatus = (
+    entryId: string,
     statusUpdate: UploadStatusFields
   ) => {
-    setStatus((statuses) => {
-      const newStatus = statuses[key];
-      if (newStatus) {
-        newStatus.currentStatus = statusUpdate.currentStatus;
-        newStatus.description = statusUpdate.description;
-        newStatus.timeTaken = statusUpdate.timeTaken;
-      } else {
-        return {
-          ...statuses,
-          [key]: statusUpdate,
-        };
-      }
+    setStatus((prevStatuses) => {
+      const newStatuses = { ...prevStatuses };
+      newStatuses[entryId] = {
+        ...newStatuses[entryId],
+        ...statusUpdate,
+      };
+      return newStatuses;
     });
   };
 
@@ -93,7 +109,7 @@ const HomePage = ({ user }: HomePageProps) => {
     await tryGoat({
       file: files[0],
       setResponse,
-      updateStatus,
+      updateStatus: updateProgressStatus,
     });
     setHasStarted(false);
   };
@@ -163,17 +179,44 @@ const HomePage = ({ user }: HomePageProps) => {
                   <Dropzone
                     setFiles={setFiles}
                     status={status}
+                    // multipleStatus={status}
                     maxFiles={1}
                     multiple={false}
                   />
                 )}
 
                 {response && (
-                  <AudioPlayerWithSubtitles
-                    audioSrc={response.url.audio}
-                    subtitles={response.subtitles}
-                    transcript={response.transcript}
-                  />
+                  <>
+                    <AudioPlayerWithSubtitles
+                      audioSrc={response.url.audio}
+                      subtitles={response.subtitles}
+                      transcript={response.transcript}
+                    />
+                    <Button
+                      type="button"
+                      kind="success"
+                      onClick={handleSubmit}
+                      loading={hasStarted}
+                      css={{
+                        display: 'grid',
+                        placeItems: 'center', //fix loading position
+                        marginTop: '20px',
+                        fontWeight: 'bold',
+                        letterSpacing: '1px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 5,
+                        }}
+                      >
+                        <EnterIcon width={30} height={25} />
+                        Enter app
+                      </div>
+                    </Button>
+                  </>
                 )}
 
                 {files.length > 0 && !response && (
@@ -192,7 +235,12 @@ const HomePage = ({ user }: HomePageProps) => {
                 )}
               </TryContainer>
 
-              <P color="mauve8">
+              <P
+                color="mauve8"
+                css={{
+                  letterSpacing: '1px',
+                }}
+              >
                 <StyledLink href={'/login'}>Go to app</StyledLink> to transcribe
                 for <i>more than 1 minute</i>
               </P>
