@@ -125,18 +125,7 @@ const HomePage = ({ user }: HomePageProps) => {
       <FrostbyteLayout user={user}>
         <LandscapeBg>
           <Hero isDarkTheme={false}>
-            {/* <div
-              className={`${styles.birdContainer} ${styles.birdContainerOne}`}
-            >
-              <div className={`${styles.bird} ${styles.birdOne}`}></div>
-            </div> */}
             <Bird styles={styles} />
-
-            {/* <div
-              className={`${styles.birdContainer} ${styles.birdContainerFour}`}
-            >
-              <div className={`${styles.bird} ${styles.birdFour}`}></div>
-            </div> */}
 
             <div
               style={{
