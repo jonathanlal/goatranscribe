@@ -22,6 +22,7 @@ import { GetServerSidePropsContext } from 'next';
 import { CTABanner } from 'components/CTABanner';
 import { Bird } from 'components/home_page/Bird';
 import { EnterIcon } from '@radix-ui/react-icons';
+import { useRouter } from 'next/router';
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getSession(ctx.req, ctx.res);
@@ -70,6 +71,7 @@ const HomePage = ({ user }: HomePageProps) => {
   const [status, setStatus] = useImmer<MultipleUploadsStatus>({});
   const [hasStarted, setHasStarted] = useState(false);
   const [files, setFiles] = useState<File[]>([]);
+  const router = useRouter();
 
   // const updateStatus = (
   //   key: UploadStatusKey,
@@ -195,8 +197,7 @@ const HomePage = ({ user }: HomePageProps) => {
                     <Button
                       type="button"
                       kind="success"
-                      onClick={handleSubmit}
-                      loading={hasStarted}
+                      onClick={() => router.push('/api/auth/login')}
                       css={{
                         display: 'grid',
                         placeItems: 'center', //fix loading position

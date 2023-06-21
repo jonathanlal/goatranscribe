@@ -138,6 +138,10 @@ export const TasksStatus = ({ user }) => {
 
   const { isDarkTheme } = useFrostbyte();
 
+  const onRetry = (entryKey: string) => {
+    retryTranscribe({ entryKey });
+  };
+
   return (
     <>
       {/* why is this not showing? */}
@@ -210,7 +214,7 @@ export const TasksStatus = ({ user }) => {
                 entry_id: t.entry_key,
                 disabled: isDisabled(t.status),
                 onClick: hasError(t.status)
-                  ? () => retryTranscribe({ entryKey: t.entry_key })
+                  ? () => onRetry(t.entry_key)
                   : () => router.push(`/transcript/${t.entry_key}`),
                 data: [
                   t.file_name,
