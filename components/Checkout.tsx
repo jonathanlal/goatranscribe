@@ -86,7 +86,12 @@ export const Checkout = ({
     }
   }, [isSuccess]);
 
-  const stripePromise = loadStripe('pk_test_5JMTryWGwKh5mKuAXA09UVQK');
+  const stripePublicKey =
+    process.env.NODE_ENV === 'production'
+      ? 'pk_live_dHfFgIjzMmL8xvcJvyCHXu5D'
+      : 'pk_test_5JMTryWGwKh5mKuAXA09UVQK';
+
+  const stripePromise = loadStripe(stripePublicKey);
   return (
     <div
       style={{
