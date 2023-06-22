@@ -50,7 +50,7 @@ const FrostByteWrapper = ({ children, user }) => {
         footerItems: user
           ? loggedInFooterItems({ darkMode })
           : loggedOutfooterItems({ darkMode }),
-        name: 'Goatranscribe',
+        name: 'GOATRANSCRIBE LALIBERTE',
       }}
       navMenu={{
         navItems: user ? navItems : loggedOutNavBar,
