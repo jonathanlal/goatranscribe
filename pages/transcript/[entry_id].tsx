@@ -9,18 +9,11 @@ import { useEffect, useState } from 'react';
 import {
   ClipboardCopyIcon,
   DownloadIcon,
-  PlusIcon,
+  PlayIcon,
+  StopIcon,
 } from '@radix-ui/react-icons';
-import { CustomTable, Row, THeader } from 'components/CustomTable';
-import { formatBytes } from 'utils/formatBytes';
-import {
-  add,
-  formatDistanceToNow,
-  formatDuration,
-  parseISO,
-  set,
-} from 'date-fns';
-import { TBody, Table } from 'styles/table';
+import { CustomTable } from 'components/CustomTable';
+import { formatDistanceToNow, formatDuration, parseISO } from 'date-fns';
 import 'react-super-responsive-table/dist/SuperResponsiveTableStyle.css';
 import { TranslateModal } from 'components/transcript_page/TranslateModal';
 
@@ -37,8 +30,9 @@ import { useAppDispatch } from 'store/hooks';
 import { setTasksLoading } from 'store/features/user';
 import { useLazyGetSummaryQuery } from 'store/services/summary';
 import Spinner from 'components/Spinner';
-import { ParagraphModal } from 'components/transcript_page/ParagraphModal';
-import { useLazyGetParagraphedQuery } from 'store/services/paragraph';
+import { Subtitle } from 'interfaces/Subtitle';
+import H5AudioPlayer from 'react-h5-audio-player';
+import 'react-h5-audio-player/lib/styles.css';
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
@@ -70,6 +64,41 @@ export const getServerSideProps = withPageAuthRequired({
   },
 });
 
+const AudioPlayerContainer = styled('div', {
+  position: 'fixed',
+  bottom: 0,
+  width: '100%',
+
+  '& .rhap_container': {
+    backgroundColor: '$purple1',
+  },
+});
+
+const StyledH5AudioPlayer = styled(H5AudioPlayer, {
+  '& .rhap_main-controls-button, .rhap_volume-button': {
+    color: '$purple11',
+  },
+
+  '& .rhap_progress-bar, .rhap_volume-bar': {
+    background: '$purple1',
+  },
+
+  '& .rhap_volume-indicator, .rhap_progress-indicator': {
+    background: '$purple11',
+  },
+  '& .rhap_progress-filled': {
+    background: '$purple12',
+  },
+
+  '& .rhap_download-progress': {
+    background: '$purple6',
+  },
+
+  '& .rhap_time': {
+    color: '$purple11',
+  },
+});
+
 const PageLayout = styled('div', {
   padding: '6vw 3vw',
   minHeight: '100vh',
@@ -95,6 +124,11 @@ const TranscriptContent = styled('div', {
   padding: '15px',
   borderRadius: '5px',
   lineHeight: '1.5',
+
+  '& .highlight': {
+    backgroundColor: '$purple11',
+    color: '$purple1',
+  },
 
   variants: {
     isRTL: {
@@ -177,6 +211,9 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
   const [summaryTaskLoading, setSummaryTaskLoading] = useState(false);
   const [downloadModal, setDownloadModal] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
+  const [showPlayer, setShowPlayer] = useState(false);
+  const [transcript, setTranscript] = useState(data.transcript_content);
+  const [currentSubtitle, setCurrentSubtitle] = useState<string>('');
 
   // const [showParagraphed, setShowParagraphed] = useState(false);
   // const [paragraphTaskLoading, setParagraphTaskLoading] = useState(false);
@@ -281,111 +318,160 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
     }
   }, [user, customToken]);
 
-  return (
-    <PageLayout>
-      {' '}
-      <CustomTable
-        color={'blue'}
-        headerItems={[
-          'Name',
-          'Creation',
-          'Word count',
-          // 'Time taken',
-          // 'File size',
-          'Audio duration',
-          'Paid',
-        ]}
-        items={[
-          {
-            data: [
-              data.file_name,
-              formatDistanceToNow(parseISO(data.transcript_creation_date), {
-                addSuffix: true,
-              }),
-              `${data.word_count} words`,
-              // formatDuration(
-              //   {
-              //     hours: Math.floor(data.transcribe_time_taken / 3600),
-              //     minutes: Math.floor(
-              //       (data.transcribe_time_taken % 3600) / 60
-              //     ),
-              //     seconds: Math.round(data.transcribe_time_taken % 60),
-              //   },
-              //   {
-              //     format: ['minutes', 'seconds'],
-              //   }
-              // ),
-              // formatBytes(data.audio_file_size),
-              formatDuration(
-                {
-                  hours: Math.floor(data.audio_duration / 3600),
-                  minutes: Math.floor((data.audio_duration % 3600) / 60),
-                  seconds: Math.round(data.audio_duration % 60),
-                },
-                {
-                  format: ['hours', 'minutes', 'seconds'],
-                }
-              ),
-              `$${data.cost}`,
-            ],
-          },
-        ]}
-      />
-      <Seperator color="indigo8" css={{ margin: '25px 0' }} />
-      <TranslationsTable
-        setAddTranslationModal={setAddTranslationModal}
-        currentLang={currentLang}
-        data={data}
-        entry_id={entry_id}
-        tasks={translationsTasks}
-        translateTaskLoading={translateTaskLoading}
-        allTranslations={allTranslations}
-      />
-      {(data.hasSummary || summaryTaskLoading || showSummary) && (
-        <CSSTransition
-          in={showSummary || summaryTaskLoading}
-          timeout={300}
-          classNames="fade"
-          unmountOnExit
-        >
-          <SummaryContainer>
-            {data.summary_content ? (
-              data.summary_content
-            ) : summaryTask.status !== 'completed' ? (
-              <>
-                <Spinner width={25} height={25} />
-                {summaryTask.description}
-              </>
-            ) : (
-              summary_content
-            )}
-          </SummaryContainer>
-        </CSSTransition>
-      )}
-      <ButtonsWrapper>
-        {data.iso === currentLang && (
-          <LeftButtons>
-            {!data.hasSummary && !summary_content && (
-              <Button
-                size="xs"
-                color="grass4"
-                onClick={() => setAddSummaryModal(true)}
-                disabled={summaryTaskLoading}
-              >
-                + Create Summary
-              </Button>
-            )}
-            {(data.hasSummary || summary_content) && (
-              <Button
-                size="xs"
-                color="grass4"
-                onClick={() => setShowSummary(!showSummary)}
-              >
-                {`${showSummary ? 'Hide' : 'Show'}`} Summary
-              </Button>
-            )}
+  const PlayTranscript = () => {
+    setShowPlayer(true);
+  };
+  const StopTranscript = () => {
+    setShowPlayer(false);
+    setTranscript(data.transcript_content);
+    setCurrentSubtitle('');
+  };
+  const timeStringToSeconds = (timeString: string): number => {
+    const [hours, minutes, seconds] = timeString.split(':').map(parseFloat);
+    return hours * 3600 + minutes * 60 + seconds;
+  };
 
-            {/* {!data.hasParagraphs && !paragraph_content && (
+  const handleTimeUpdate = (currentTime: number) => {
+    const subtitle = data.subtitles_content.find(
+      (s) =>
+        currentTime >= timeStringToSeconds(s.startTime) &&
+        currentTime <= timeStringToSeconds(s.endTime)
+    );
+    setCurrentSubtitle(subtitle ? subtitle.text : '');
+    if (currentSubtitle !== '') {
+      const transcriptWithHighlight = data.transcript_content.replace(
+        currentSubtitle,
+        `<span class="highlight" id="highlight">${currentSubtitle}</span>`
+      );
+      setTranscript(transcriptWithHighlight);
+      const element = document.getElementById('highlight');
+      if (element) {
+        element.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center',
+        });
+      }
+    }
+  };
+
+  return (
+    <>
+      <PageLayout>
+        {' '}
+        <CustomTable
+          color={'blue'}
+          headerItems={[
+            'Name',
+            'Creation',
+            'Word count',
+            // 'Time taken',
+            // 'File size',
+            'Audio duration',
+            'Paid',
+          ]}
+          items={[
+            {
+              data: [
+                data.file_name,
+                formatDistanceToNow(parseISO(data.transcript_creation_date), {
+                  addSuffix: true,
+                }),
+                `${data.word_count} words`,
+                // formatDuration(
+                //   {
+                //     hours: Math.floor(data.transcribe_time_taken / 3600),
+                //     minutes: Math.floor(
+                //       (data.transcribe_time_taken % 3600) / 60
+                //     ),
+                //     seconds: Math.round(data.transcribe_time_taken % 60),
+                //   },
+                //   {
+                //     format: ['minutes', 'seconds'],
+                //   }
+                // ),
+                // formatBytes(data.audio_file_size),
+                formatDuration(
+                  {
+                    hours: Math.floor(data.audio_duration / 3600),
+                    minutes: Math.floor((data.audio_duration % 3600) / 60),
+                    seconds: Math.round(data.audio_duration % 60),
+                  },
+                  {
+                    format: ['hours', 'minutes', 'seconds'],
+                  }
+                ),
+                `$${data.cost}`,
+              ],
+            },
+          ]}
+        />
+        <Seperator color="indigo8" css={{ margin: '25px 0' }} />
+        <TranslationsTable
+          setAddTranslationModal={setAddTranslationModal}
+          currentLang={currentLang}
+          data={data}
+          entry_id={entry_id}
+          tasks={translationsTasks}
+          translateTaskLoading={translateTaskLoading}
+          allTranslations={allTranslations}
+        />
+        {(data.hasSummary || summaryTaskLoading || showSummary) && (
+          <CSSTransition
+            in={showSummary || summaryTaskLoading}
+            timeout={300}
+            classNames="fade"
+            unmountOnExit
+          >
+            <SummaryContainer>
+              {data.summary_content && data.summary_content}
+              {summaryTask.status === 'completed' && summary_content}
+              {summaryTask.status === 'summary_failed' &&
+                summaryTask.description}
+              {summaryTask.status !== 'completed' &&
+                summaryTask.status !== 'summary_failed' && (
+                  <>
+                    <Spinner width={25} height={25} />
+                    {summaryTask.description}
+                  </>
+                )}
+              {/* 
+              {data.summary_content ? (
+                data.summary_content
+              ) : summaryTask.status !== 'completed' ? (
+                <>
+                  <Spinner width={25} height={25} />
+                  {summaryTask.description}
+                </>
+              ) : (
+                summary_content
+              )} */}
+            </SummaryContainer>
+          </CSSTransition>
+        )}
+        <ButtonsWrapper>
+          {data.iso === currentLang && (
+            <LeftButtons>
+              {!data.hasSummary && !summary_content && (
+                <Button
+                  size="xs"
+                  color="grass4"
+                  onClick={() => setAddSummaryModal(true)}
+                  disabled={summaryTaskLoading}
+                >
+                  + Create Summary
+                </Button>
+              )}
+              {(data.hasSummary || summary_content) && (
+                <Button
+                  size="xs"
+                  color="grass4"
+                  onClick={() => setShowSummary(!showSummary)}
+                >
+                  {`${showSummary ? 'Hide' : 'Show'}`} Summary
+                </Button>
+              )}
+
+              {/* {!data.hasParagraphs && !paragraph_content && (
               <Button
                 size="xs"
                 color="grass4"
@@ -395,7 +481,7 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
                 + Add paragraphs
               </Button>
             )} */}
-            {/* {(data.hasParagraphs || paragraph_content) && (
+              {/* {(data.hasParagraphs || paragraph_content) && (
               <Button
                 size="xs"
                 color="grass4"
@@ -404,27 +490,10 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
                 {`${showParagraphed ? 'Hide' : 'Show'}`} Paragraphs
               </Button>
             )} */}
-          </LeftButtons>
-        )}
+            </LeftButtons>
+          )}
 
-        <RightButtons>
-          <Button
-            css={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-            }}
-            color="purple4"
-            size="xs"
-            onClick={() => setDownloadModal(true)}
-          >
-            <DownloadIcon width={20} height={20} />
-            Download
-          </Button>
-          <CopyToClipboard
-            text={data.transcript_content}
-            onCopy={() => setCopied(true)}
-          >
+          <RightButtons>
             <Button
               css={{
                 display: 'flex',
@@ -433,63 +502,129 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
               }}
               color="purple4"
               size="xs"
+              onClick={() => setDownloadModal(true)}
             >
-              <ClipboardCopyIcon width={20} height={20} />
-              Copy
+              <DownloadIcon width={20} height={20} />
+              Download
             </Button>
-          </CopyToClipboard>
-        </RightButtons>
-      </ButtonsWrapper>
-      <TranscriptContent isRTL={RTLeftLanguages.includes(currentLang)}>
-        {/* {paragraphTaskLoading && (
+            <CopyToClipboard
+              text={data.transcript_content}
+              onCopy={() => setCopied(true)}
+            >
+              <Button
+                css={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+                color="purple4"
+                size="xs"
+              >
+                <ClipboardCopyIcon width={20} height={20} />
+                Copy
+              </Button>
+            </CopyToClipboard>
+
+            {!showPlayer ? (
+              <Button
+                css={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+                color="purple4"
+                size="xs"
+                onClick={PlayTranscript}
+              >
+                <PlayIcon width={20} height={20} />
+                Play
+              </Button>
+            ) : (
+              <Button
+                css={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '5px',
+                }}
+                color="purple4"
+                size="xs"
+                onClick={StopTranscript}
+              >
+                <StopIcon width={20} height={20} />
+                Stop
+              </Button>
+            )}
+          </RightButtons>
+        </ButtonsWrapper>
+        <TranscriptContent
+          isRTL={RTLeftLanguages.includes(currentLang)}
+          dangerouslySetInnerHTML={{
+            __html: transcript,
+          }}
+        >
+          {/* {paragraphTaskLoading && (
           <>
             <Spinner width={25} height={25} /> {paragraphTask.description}
           </>
         )} */}
-        {/* {showParagraphed
+          {/* {showParagraphed
           ? data.paragraph_content || paragraph_content
           : data.transcript_content} */}
-        {data.transcript_content}
-      </TranscriptContent>
-      <Toast
-        setShow={setCopied}
-        show={copied}
-        kind="success"
-        title={'Copied to clipboard'}
-      />
-      {/* <Modal setOpen={setAddTranslationModal} open={addTranslationModal}>
+        </TranscriptContent>
+        <Toast
+          setShow={setCopied}
+          show={copied}
+          kind="success"
+          title={'Copied to clipboard'}
+        />
+        {/* <Modal setOpen={setAddTranslationModal} open={addTranslationModal}>
     Add translations...
   </Modal> */}
-      <TranslateModal
-        addTranslationModal={addTranslationModal}
-        setAddTranslationModal={setAddTranslationModal}
-        entryKey={entry_id}
-        translations={[...data.translations, data.iso, ...newTranslations]}
-        char_count={data.char_count}
-        setTranslateTaskLoading={setTranslateTaskLoading}
-      />
-      <DownloadModal
-        downloadModal={downloadModal}
-        setDownloadModal={setDownloadModal}
-        entryKey={entry_id}
-        targetLang={currentLang === data.iso ? 'default' : currentLang}
-        file_name={data.file_name}
-      />
-      <SummaryModal
-        setAddSummaryModal={setAddSummaryModal}
-        addSummaryModal={addSummaryModal}
-        entryKey={entry_id}
-        char_count={data.char_count}
-        setSummaryTaskLoading={setSummaryTaskLoading}
-      />
-      {/* <ParagraphModal
+        <TranslateModal
+          addTranslationModal={addTranslationModal}
+          setAddTranslationModal={setAddTranslationModal}
+          entryKey={entry_id}
+          translations={[...data.translations, data.iso, ...newTranslations]}
+          char_count={data.char_count}
+          setTranslateTaskLoading={setTranslateTaskLoading}
+        />
+        <DownloadModal
+          downloadModal={downloadModal}
+          setDownloadModal={setDownloadModal}
+          entryKey={entry_id}
+          targetLang={currentLang === data.iso ? 'default' : currentLang}
+          file_name={data.file_name}
+        />
+        <SummaryModal
+          setAddSummaryModal={setAddSummaryModal}
+          addSummaryModal={addSummaryModal}
+          entryKey={entry_id}
+          char_count={data.char_count}
+          setSummaryTaskLoading={setSummaryTaskLoading}
+        />
+        {/* <ParagraphModal
         entryKey={entry_id}
         char_count={data.char_count}
         addParagraphModal={addParagraphModal}
         setAddParagraphModal={setAddParagraphModal}
         setParagraphTaskLoading={setParagraphTaskLoading}
       /> */}
-    </PageLayout>
+      </PageLayout>
+      {showPlayer && (
+        <AudioPlayerContainer>
+          <StyledH5AudioPlayer
+            src={data.audioSrc}
+            autoPlay
+            onListen={(event) => {
+              const audioElement = event.target as HTMLAudioElement;
+              handleTimeUpdate(audioElement.currentTime);
+            }}
+            layout="horizontal"
+            customAdditionalControls={[]}
+          />
+        </AudioPlayerContainer>
+      )}
+    </>
   );
 };
 
@@ -502,7 +637,7 @@ const Transcript = ({
   user: Claims;
   data: {
     transcript_content: string;
-    subtitles_content: string;
+    subtitles_content: Subtitle[];
     transcript_creation_date: string;
     word_count: number;
     transcribe_time_taken: number;
