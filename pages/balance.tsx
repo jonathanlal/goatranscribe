@@ -1,7 +1,7 @@
 import { Claims, getSession, withPageAuthRequired } from '@auth0/nextjs-auth0';
 import FrostbyteLayout from 'components/FrostbyteLayout';
-import { H, Toast, styled, Tabs } from 'frostbyte';
-import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
+import { H, Toast, styled, Tabs, P } from 'frostbyte';
+import { ExclamationTriangleIcon, LockClosedIcon } from '@radix-ui/react-icons';
 import { ReactNode, useEffect, useState } from 'react';
 import { Checkout } from 'components/Checkout';
 import { makeRequestSS } from 'utils/makeRequestSS';
@@ -12,6 +12,7 @@ import '@availity/block-ui/dist/index.css';
 import { useRouter } from 'next/router';
 import 'react-loading-skeleton/dist/skeleton.css';
 import Head from 'next/head';
+import { StyledLink, TitleWithIconWrapper } from 'styles/shared';
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
@@ -61,7 +62,7 @@ type HomePageProps = {
 };
 
 const Layout = styled('div', {
-  padding: '6vw 5vw',
+  padding: '3vw 4vw',
   minHeight: '100vh',
 });
 
@@ -116,6 +117,30 @@ const Balance = ({ user, error, success }: HomePageProps) => {
 
       <FrostbyteLayout user={user}>
         <Layout>
+          <TitleWithIconWrapper>
+            <LockClosedIcon
+              width={35}
+              height={35}
+              style={{
+                marginBottom: '10px',
+              }}
+            />{' '}
+            <H color="purple9">Balance</H>
+          </TitleWithIconWrapper>
+
+          <P
+            size="20"
+            color="purple8"
+            css={{
+              marginBottom: '30px',
+            }}
+          >
+            Update your balance or view your transactions. Powered by{' '}
+            <StyledLink href="https://stripe.com/" target="_blank" color="blue">
+              Stripe
+            </StyledLink>
+            .
+          </P>
           <Tabs
             tabContent={[
               {

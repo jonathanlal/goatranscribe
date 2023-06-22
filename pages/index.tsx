@@ -23,6 +23,7 @@ import { CTABanner } from 'components/CTABanner';
 import { Bird } from 'components/home_page/Bird';
 import { EnterIcon } from '@radix-ui/react-icons';
 import { useRouter } from 'next/router';
+import { StyledLink } from 'styles/shared';
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getSession(ctx.req, ctx.res);
@@ -48,11 +49,6 @@ const Hero = styled('div', {
   position: 'relative',
   zIndex: 1,
   overflow: 'hidden',
-});
-
-const StyledLink = styled(Link, {
-  color: '$purple7',
-  fontWeight: 'bold',
 });
 
 const TryContainer = styled('div', {

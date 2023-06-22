@@ -7,7 +7,7 @@ export const loggedInFooterItems = ({
   {
     type: 'logo',
     // description: 'Goatranscribe',
-    comp: <Logo isDarkMode={darkMode} />,
+    comp: <Logo isDarkMode={darkMode} isFooter={true} />,
   },
   {
     label: 'Links',

@@ -124,43 +124,47 @@ export const Payment = ({
             paymentMethods: ['klarna'],
           }}
         /> */}
-
-        <StyledPaymentElement
-          onReady={() => {
-            setIsPaymentElementReady(true);
-            setIsUILoading(false);
-          }}
-          //   onLoaderStart={() => setIsUILoading(true)}
-          options={{
-            layout: 'accordion',
-            wallets: {
-              applePay: 'auto',
-              googlePay: 'auto',
-            },
-            paymentMethodOrder: ['apple_pay', 'google_pay', 'card', 'klarna'],
-          }}
-        />
-
-        {!isUILoading && isPaymentElementReady && (
-          <Button
-            type="submit"
-            loading={isSubmitLoading}
-            color="purple5"
-            // outlined
-            fullWidth
-            css={{
-              //   color: '$primaryContrast',
-              zIndex: 10,
-              display: 'grid',
-              placeItems: 'center', //fix loading position
-              '@mdMin': {
-                marginTop: '25px',
-              },
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+          <StyledPaymentElement
+            onReady={() => {
+              setIsPaymentElementReady(true);
+              setIsUILoading(false);
             }}
-          >
-            ✨ Add Funds
-          </Button>
-        )}
+            //   onLoaderStart={() => setIsUILoading(true)}
+            options={{
+              layout: 'accordion',
+              wallets: {
+                applePay: 'auto',
+                googlePay: 'auto',
+              },
+              paymentMethodOrder: ['apple_pay', 'google_pay', 'card', 'klarna'],
+            }}
+          />
+
+          {!isUILoading && isPaymentElementReady && (
+            <Button
+              type="submit"
+              loading={isSubmitLoading}
+              color="purple5"
+              // outlined
+              fullWidth
+              css={{
+                //   color: '$primaryContrast',
+                // zIndex: 10,
+                display: 'grid',
+                placeItems: 'center', //fix loading position
+                // '@mdMin': {
+                //   marginTop: '25px',
+                // },
+                // '@mdMax': {
+                //   marginTop: '-10px',
+                // },
+              }}
+            >
+              ✨ Add Funds
+            </Button>
+          )}
+        </div>
 
         <Toast
           setShow={setErrorMessage}

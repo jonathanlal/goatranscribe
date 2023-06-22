@@ -1,5 +1,19 @@
 import { styled } from 'frostbyte';
+import Link from 'next/link';
 import Select from 'react-dropdown-select';
+
+export const StyledLink = styled(Link, {
+  color: '$purple7',
+  fontWeight: 'bold',
+
+  variants: {
+    color: {
+      blue: {
+        color: '$indigo7',
+      },
+    },
+  },
+});
 
 export const TitleWithIconWrapper = styled('div', {
   display: 'flex',

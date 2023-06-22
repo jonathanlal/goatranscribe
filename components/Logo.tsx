@@ -191,7 +191,13 @@ const LogoDesktop = ({ isDarkMode }) => {
     </svg>
   );
 };
-export const Logo = ({ isDarkMode }) => {
+export const Logo = ({
+  isDarkMode,
+  isFooter,
+}: {
+  isDarkMode: boolean;
+  isFooter?: boolean;
+}) => {
   const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   useEffect(() => {
@@ -208,6 +214,6 @@ export const Logo = ({ isDarkMode }) => {
 
   const mobileBreakpoint = 902;
 
-  if (windowWidth <= mobileBreakpoint) return <LogoMobile />;
+  if (windowWidth <= mobileBreakpoint && !isFooter) return <LogoMobile />;
   else return <LogoDesktop isDarkMode={isDarkMode} />;
 };
