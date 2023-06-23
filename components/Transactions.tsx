@@ -1,7 +1,6 @@
 import { H, P, styled, useFrostbyte } from 'frostbyte';
 import { useGetTransactionsQuery } from 'store/services/balance';
 import { CustomTable } from './CustomTable';
-import { formatDistanceToNow } from 'date-fns';
 import Skeleton, { SkeletonTheme } from 'react-loading-skeleton';
 
 const Amount = styled('span', {

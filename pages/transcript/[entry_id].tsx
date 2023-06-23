@@ -373,9 +373,14 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
             {
               data: [
                 data.file_name,
-                formatDistanceToNow(parseISO(data.transcript_creation_date), {
-                  addSuffix: true,
-                }),
+                formatDistanceToNow(
+                  parseISO(
+                    data.transcript_creation_date.replace(' ', 'T') + 'Z'
+                  ),
+                  {
+                    addSuffix: true,
+                  }
+                ),
                 `${data.word_count} words`,
                 // formatDuration(
                 //   {

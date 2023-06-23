@@ -418,9 +418,12 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
                 entry_id: u.entry_id,
                 data: [
                   u.file_name,
-                  formatDistanceToNow(parseISO(u.creation_date), {
-                    addSuffix: true,
-                  }),
+                  formatDistanceToNow(
+                    parseISO(u.creation_date.replace(' ', 'T') + 'Z'),
+                    {
+                      addSuffix: true,
+                    }
+                  ),
                   formatBytes(u.file_size),
                   // const hours = Math.floor(totalTime / 3600);
                   // const minutes = Math.floor((totalTime % 3600) / 60);

@@ -139,9 +139,12 @@ const Transcripts = ({ user, files }: HomePageProps) => {
                 entry_id: file.entry_id,
                 data: [
                   file.file_name,
-                  formatDistanceToNow(parseISO(file.creation_date), {
-                    addSuffix: true,
-                  }),
+                  formatDistanceToNow(
+                    parseISO(file.creation_date.replace(' ', 'T') + 'Z'),
+                    {
+                      addSuffix: true,
+                    }
+                  ),
                   file.word_count,
                 ],
                 onClick: (entry_id: string) =>

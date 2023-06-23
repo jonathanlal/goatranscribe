@@ -219,9 +219,12 @@ export const TasksStatus = ({ user }) => {
                 data: [
                   t.file_name,
                   t.date_started
-                    ? formatDistanceToNow(parseISO(t.date_started), {
-                        addSuffix: true,
-                      })
+                    ? formatDistanceToNow(
+                        parseISO(t.date_started.replace(' ', 'T') + 'Z'),
+                        {
+                          addSuffix: true,
+                        }
+                      )
                     : null,
                   t.description,
                   t.time_taken ? (
