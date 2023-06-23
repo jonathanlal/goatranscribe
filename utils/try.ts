@@ -204,10 +204,10 @@ export const tryGoat = async ({
 
     try {
       const options = {
-        blobHTTPHeaders: { blobContentType: file.type },
+        blobHTTPHeaders: { blobContentType: newFile.type },
         onProgress: (progressEvent) => {
           const percentage = Math.ceil(
-            (progressEvent.loadedBytes / file.size) * 100
+            (progressEvent.loadedBytes / newFile.size) * 100
           );
 
           updateStatus('upload', {
@@ -224,8 +224,8 @@ export const tryGoat = async ({
       const duration = await getAudioDurationFromFile(newFile);
 
       await blobClient.setMetadata({
-        fileName: file.name,
-        fileExtension: `.${file.name.split('.').pop()}`,
+        fileName,
+        fileExtension,
         duration: duration.toString(),
       });
     } catch (error) {
