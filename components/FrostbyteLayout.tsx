@@ -10,11 +10,12 @@ import { persistor, store } from 'store/store';
 import { PersistGate } from 'redux-persist/integration/react';
 import { useGetBalanceQuery } from 'store/services/balance';
 import { useRouter } from 'next/router';
+import { Splash } from './Splash';
 
 export default function FrostbyteLayout({ children, user }) {
   return (
     <Provider store={store}>
-      <PersistGate persistor={persistor} loading={'LOADING'}>
+      <PersistGate persistor={persistor} loading={<Splash />}>
         <FrostByteWrapper user={user}>{children}</FrostByteWrapper>
       </PersistGate>
     </Provider>

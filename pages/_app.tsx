@@ -1,11 +1,6 @@
 import 'styles/global.css';
-import { UserProvider, useUser } from '@auth0/nextjs-auth0/client';
+import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { ParallaxProvider } from 'react-scroll-parallax';
-import { Provider } from 'react-redux';
-import { PersistGate } from 'redux-persist/integration/react';
-import { persistor, store } from 'store/store';
-import FrostbyteLayout from 'components/FrostbyteLayout';
-import { useState } from 'react';
 import { Inter } from 'next/font/google';
 
 const inter = Inter({ weight: '400', subsets: ['latin'] });
