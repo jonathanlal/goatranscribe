@@ -160,8 +160,8 @@ export const HeroSection = ({
               letterSpacing: '1px',
             }}
           >
-            <StyledLink href={'/login'}>Go to app</StyledLink> to transcribe for{' '}
-            <i>more than 1 minute</i>
+            <StyledLink href={'/api/auth/login'}>Go to app</StyledLink> to
+            transcribe for <i>more than 1 minute</i>
           </P>
         </div>
       </Hero>
