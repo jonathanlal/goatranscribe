@@ -144,8 +144,12 @@ export const TasksStatus = ({ user }) => {
 
   return (
     <>
-      {/* why is this not showing? */}
-      {/* {!tasksLoading && (
+      <SkeletonTheme
+        baseColor={isDarkTheme ? '#161618' : ''}
+        highlightColor={isDarkTheme ? '#1F1F1F' : ''}
+      >
+        {/* why is this not showing? */}
+        {/* {!tasksLoading && (
         <SkeletonTheme
           baseColor={isDarkTheme ? '#161618' : ''}
           highlightColor={isDarkTheme ? '#1F1F1F' : ''}
@@ -165,95 +169,96 @@ export const TasksStatus = ({ user }) => {
           />
         </SkeletonTheme>
       )} */}
-      <CSSTransition
-        in={tasksLoading || tasks.length > 0}
-        timeout={300}
-        classNames="fade"
-        unmountOnExit
-      >
-        <>
-          <TitleWithIconWrapper color="blue">
-            <Link2Icon width={30} height={30} />
-            <H color="indigo9">Recently transcribed:</H>
-          </TitleWithIconWrapper>
-          {/* <H color="indigo9" css={{ lineHeight: 1.1, marginBottom: '5px' }}>
+        <CSSTransition
+          in={tasksLoading || tasks.length > 0}
+          timeout={300}
+          classNames="fade"
+          unmountOnExit
+        >
+          <>
+            <TitleWithIconWrapper color="blue">
+              <Link2Icon width={30} height={30} />
+              <H color="indigo9">Recently transcribed:</H>
+            </TitleWithIconWrapper>
+            {/* <H color="indigo9" css={{ lineHeight: 1.1, marginBottom: '5px' }}>
             Recently transcribed:
           </H> */}
-          <P
-            size="20"
-            color="blue8"
-            css={{
-              '@mdMax': {
-                marginBottom: '10px',
-              },
-            }}
-          >
-            Click on a file to view the transcript
-          </P>
-          {showMarkAsSeen && (
-            <ButtonLink onClick={markAllAsSeenHandler}>
-              Mark all as seen
-            </ButtonLink>
-          )}
-          <CustomTable
-            color={'blue'}
-            headerItems={['Name', 'Started', 'Status', 'Time taken']}
-            items={[
-              tasksLoading
-                ? {
-                    disabled: true,
-                    data: [
-                      <Skeleton width="100%" height="28px" />,
-                      <Skeleton width="100%" height="28px" />,
-                      <Skeleton width="100%" height="28px" />,
-                      <Skeleton width="100%" height="28px" />,
-                    ],
-                  }
-                : { data: [] },
-              ...tasks.map((t) => ({
-                entry_id: t.entry_key,
-                disabled: isDisabled(t.status),
-                onClick: hasError(t.status)
-                  ? () => onRetry(t.entry_key)
-                  : () => router.push(`/transcript/${t.entry_key}`),
-                data: [
-                  t.file_name,
-                  t.date_started
-                    ? formatDistanceToNow(
-                        parseISO(t.date_started.replace(' ', 'T') + 'Z'),
+            <P
+              size="20"
+              color="blue8"
+              css={{
+                '@mdMax': {
+                  marginBottom: '10px',
+                },
+              }}
+            >
+              Click on a file to view the transcript
+            </P>
+            {showMarkAsSeen && (
+              <ButtonLink onClick={markAllAsSeenHandler}>
+                Mark all as seen
+              </ButtonLink>
+            )}
+            <CustomTable
+              color={'blue'}
+              headerItems={['Name', 'Started', 'Status', 'Time taken']}
+              items={[
+                tasksLoading
+                  ? {
+                      disabled: true,
+                      data: [
+                        <Skeleton width="100%" height="28px" />,
+                        <Skeleton width="100%" height="28px" />,
+                        <Skeleton width="100%" height="28px" />,
+                        <Skeleton width="100%" height="28px" />,
+                      ],
+                    }
+                  : { data: [] },
+                ...tasks.map((t) => ({
+                  entry_id: t.entry_key,
+                  disabled: isDisabled(t.status),
+                  onClick: hasError(t.status)
+                    ? () => onRetry(t.entry_key)
+                    : () => router.push(`/transcript/${t.entry_key}`),
+                  data: [
+                    t.file_name,
+                    t.date_started
+                      ? formatDistanceToNow(
+                          parseISO(t.date_started.replace(' ', 'T') + 'Z'),
+                          {
+                            addSuffix: true,
+                          }
+                        )
+                      : null,
+                    t.description,
+                    t.time_taken ? (
+                      formatDuration(
                         {
-                          addSuffix: true,
+                          minutes: Math.floor((t.time_taken % 3600) / 60),
+                          seconds: Math.round(t.time_taken % 60),
+                        },
+                        {
+                          format: ['minutes', 'seconds'],
                         }
                       )
-                    : null,
-                  t.description,
-                  t.time_taken ? (
-                    formatDuration(
-                      {
-                        minutes: Math.floor((t.time_taken % 3600) / 60),
-                        seconds: Math.round(t.time_taken % 60),
-                      },
-                      {
-                        format: ['minutes', 'seconds'],
-                      }
-                    )
-                  ) : hasError(t.status) ? (
-                    <RetryContainer>
-                      <ExclamationTriangleIcon width={20} height={20} />
-                      Retry
-                    </RetryContainer>
-                  ) : (
-                    <Spinner />
-                  ),
-                ],
-              })),
-            ]}
-          />
-          <Seperator color="indigo8" css={{ marginTop: '25px' }} />
+                    ) : hasError(t.status) ? (
+                      <RetryContainer>
+                        <ExclamationTriangleIcon width={20} height={20} />
+                        Retry
+                      </RetryContainer>
+                    ) : (
+                      <Spinner />
+                    ),
+                  ],
+                })),
+              ]}
+            />
+            <Seperator color="indigo8" css={{ marginTop: '25px' }} />
 
-          <br />
-        </>
-      </CSSTransition>
+            <br />
+          </>
+        </CSSTransition>
+      </SkeletonTheme>
     </>
   );
 };
