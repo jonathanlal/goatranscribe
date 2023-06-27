@@ -102,7 +102,7 @@ export const HeroSection = ({
             <mark
               style={{
                 backgroundColor: isDarkTheme
-                  ? 'rgba(153,86,213, 0.7)'
+                  ? 'rgba(153,86,213, 0.5)'
                   : 'rgba(153,86,213, 0.1)',
               }}
             >
