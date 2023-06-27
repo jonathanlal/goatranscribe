@@ -1,6 +1,7 @@
 import { Button, H, styled, useFrostbyte } from 'frostbyte';
 import { useRouter } from 'next/router';
 import Typewriter from 'typewriter-effect';
+import { event } from 'nextjs-google-analytics';
 
 const StyledBanner = styled('div', {
   display: 'flex',
@@ -75,6 +76,14 @@ export const CTABanner = () => {
   const router = useRouter();
   const { isDarkTheme } = useFrostbyte();
 
+  const goToApp = () => {
+    event('click', {
+      category: 'cta',
+      label: 'home_page_banner',
+    });
+    router.push('/transcribe');
+  };
+
   return (
     <StyledBanner isDarkTheme={isDarkTheme}>
       <StyledH isDarkTheme={isDarkTheme}>
@@ -104,7 +113,7 @@ export const CTABanner = () => {
         type="button"
         kind="success"
         // color="grass3"
-        onClick={() => router.push('/transcribe')}
+        onClick={goToApp}
         css={{
           zIndex: 1,
           fontWeight: 'bold',

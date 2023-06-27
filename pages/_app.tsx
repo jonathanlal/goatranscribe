@@ -2,6 +2,7 @@ import 'styles/global.css';
 import { UserProvider } from '@auth0/nextjs-auth0/client';
 import { ParallaxProvider } from 'react-scroll-parallax';
 import { Inter } from 'next/font/google';
+import { GoogleAnalytics } from 'nextjs-google-analytics';
 
 const inter = Inter({ weight: '400', subsets: ['latin'] });
 
@@ -32,6 +33,7 @@ export default function App({ Component, pageProps }) {
           }
         `}</style> */}
         <main className={inter.className}>
+          <GoogleAnalytics trackPageViews />
           <Component {...pageProps} />
         </main>
         {/* )} */}

@@ -1,10 +1,20 @@
 import { styled } from 'frostbyte';
-import Link from 'next/link';
 import Select from 'react-dropdown-select';
 
-export const StyledLink = styled(Link, {
+export const StyledLink = styled('button', {
   color: '$purple7',
   fontWeight: 'bold',
+
+  background: 'none',
+  border: 'none',
+  outline: 'inherit',
+  padding: 0,
+  cursor: 'pointer',
+  fontSize: 'inherit',
+
+  '&:hover': {
+    textDecoration: 'underline',
+  },
 
   variants: {
     color: {

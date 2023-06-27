@@ -14,6 +14,7 @@ import { GetServerSidePropsContext } from 'next';
 import { CTABanner } from 'components/CTABanner';
 import { useRouter } from 'next/router';
 import { HeroSection } from 'components/home_page/hero_section';
+import { event } from 'nextjs-google-analytics';
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   const session = await getSession(ctx.req, ctx.res);
@@ -94,6 +95,9 @@ const HomePage = ({ user }: HomePageProps) => {
 
   const handleSubmit = async () => {
     setHasStarted(true);
+    event('file', {
+      category: 'try_goat',
+    });
     await tryGoat({
       file: files[0],
       setResponse,

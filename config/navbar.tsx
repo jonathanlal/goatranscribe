@@ -2,6 +2,7 @@ import { Avatar, NavMenuProps, styled } from 'frostbyte';
 import { EnterIcon, UploadIcon } from '@radix-ui/react-icons';
 import { Claims } from '@auth0/nextjs-auth0';
 import Spinner from 'components/Spinner';
+import { event } from 'nextjs-google-analytics';
 
 const CTABtn = styled('div', {
   display: 'grid',
@@ -72,6 +73,14 @@ const ViewTranscriptWrapper = styled('div', {
     width: '30px',
   },
 });
+
+const onAppClick = () => {
+  event('click', {
+    category: 'cta',
+    label: 'go_to_app_nav_link',
+  });
+  window.location.href = '/api/auth/login';
+};
 export const loggedOutNavBar: NavMenuProps['navItems'] = [
   // {
   //   type: 'dropdown',
@@ -127,10 +136,9 @@ export const loggedOutNavBar: NavMenuProps['navItems'] = [
   },
 
   {
-    href: '/api/auth/login',
     type: 'button',
     label: (
-      <CTABtn>
+      <CTABtn onClick={onAppClick}>
         <EnterIcon
           width={25}
           height={25}

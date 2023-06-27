@@ -5,6 +5,7 @@ import { DropzoneState, useDropzone } from 'react-dropzone';
 import { formatBytes } from 'utils/formatBytes';
 import Spinner from './Spinner';
 import { useEffect } from 'react';
+import { event as gaEvent } from 'nextjs-google-analytics';
 
 const Container = styled('div', {
   flex: 1,
@@ -168,8 +169,14 @@ export const Dropzone = ({
       //show toast
     },
     onDropAccepted(files, event) {
-      console.log('files', files);
       setFiles(files);
+
+      if (maxFiles === 1) {
+        gaEvent('file', {
+          category: 'cta',
+          label: 'file_accepted',
+        });
+      }
     },
 
     // autoFocus: true,

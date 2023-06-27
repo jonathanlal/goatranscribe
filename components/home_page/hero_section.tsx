@@ -7,6 +7,7 @@ import AudioPlayerWithSubtitles from 'components/AudioPlayerWithSubtitles';
 import { EnterIcon } from '@radix-ui/react-icons';
 import { StyledLink } from 'styles/shared';
 import { useRouter } from 'next/router';
+import { event } from 'nextjs-google-analytics';
 
 const Hero = styled('div', {
   display: 'flex',
@@ -43,6 +44,22 @@ export const HeroSection = ({
 
   const { isDarkTheme } = useFrostbyte();
 
+  const enterAppAfterTry = () => {
+    event('click', {
+      category: 'cta',
+      label: 'after_try_enter_app',
+    });
+    router.push('/api/auth/login');
+  };
+
+  const goToApp = () => {
+    event('click', {
+      category: 'cta',
+      label: 'go_to_app_try_link',
+    });
+    router.push('/api/auth/login');
+  };
+
   return (
     <LandscapeBg>
       <Hero>
@@ -71,7 +88,7 @@ export const HeroSection = ({
             }}
           >
             <span>
-              Convert Audio to text online with <i>Goatranscribe</i>
+              Convert audio to text online with <i>Goatranscribe</i>
             </span>
           </H>
           <br />
@@ -115,7 +132,7 @@ export const HeroSection = ({
                 <Button
                   type="button"
                   kind="success"
-                  onClick={() => router.push('/api/auth/login')}
+                  onClick={enterAppAfterTry}
                   css={{
                     display: 'grid',
                     placeItems: 'center', //fix loading position
@@ -160,8 +177,8 @@ export const HeroSection = ({
               letterSpacing: '1px',
             }}
           >
-            <StyledLink href={'/api/auth/login'}>Go to app</StyledLink> to
-            transcribe for <i>more than 1 minute</i>
+            <StyledLink onClick={goToApp}>Go to app</StyledLink> to transcribe
+            for <i>more than 1 minute</i>
           </P>
         </div>
       </Hero>
