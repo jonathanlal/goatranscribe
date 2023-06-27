@@ -1,11 +1,14 @@
 import { CheckCircledIcon, UploadIcon } from '@radix-ui/react-icons';
-import { P, styled, useFrostbyte } from 'frostbyte';
+import { P, Seperator, styled, useFrostbyte } from 'frostbyte';
 import { MultipleUploadsStatus, UploadStatus } from 'interfaces/UploadStatus';
 import { DropzoneState, useDropzone } from 'react-dropzone';
 import { formatBytes } from 'utils/formatBytes';
 import Spinner from './Spinner';
 import { useEffect } from 'react';
 import { event as gaEvent } from 'nextjs-google-analytics';
+import { StyledLink } from 'styles/shared';
+import { event } from 'nextjs-google-analytics';
+import { useRouter } from 'next/router';
 
 const Container = styled('div', {
   flex: 1,
@@ -98,6 +101,14 @@ const FileItemStatus = styled('div', {
   flexDirection: 'row',
   alignItems: 'center',
   justifyContent: 'space-between',
+
+  '& > p:first-child': {
+    textOverflow: 'ellipsis',
+    overflowWrap: 'anywhere !important',
+  },
+  '& > p:last-child': {
+    textAlign: 'right',
+  },
 });
 
 const StyledCheckCircledIcon = styled(CheckCircledIcon, {
@@ -165,6 +176,34 @@ export const Dropzone = ({
   multipleStatus?: MultipleUploadsStatus;
 }) => {
   const { isDarkTheme } = useFrostbyte();
+  const router = useRouter();
+
+  const acceptedFilesInApp = {
+    'audio/aac': ['.aac'],
+    'audio/flac': ['.flac'],
+    'audio/mpeg': ['.mp3', '.mpg', '.mpeg', '.mpga'],
+    'audio/mp4': ['.m4a'],
+    'audio/ogg': ['.ogg', '.oga'],
+    'audio/wav': ['.wav'],
+    'audio/webm': ['.webm'],
+    'audio/x-matroska': ['.mka'],
+    'video/mp4': ['.mp4', '.m4v'],
+    'video/mpeg': ['.mpeg', '.mpg'],
+    'video/ogg': ['.ogv'],
+    'video/webm': ['.webm'],
+    'video/x-matroska': ['.mkv'],
+    'video/x-flv': ['.flv'],
+    'video/3gpp': ['.3gp', '.3g2'],
+    'video/quicktime': ['.mov'],
+    'video/x-msvideo': ['.avi'],
+  };
+
+  const acceptedTryFiles = {
+    'audio/mp4': ['.m4a', '.mp4'],
+    'audio/mpeg': ['.mp3', '.mpeg', '.mpga'],
+    'audio/wav': ['.wav'],
+    'audio/webm': ['.webm'],
+  };
   const dropState = useDropzone({
     maxFiles,
     multiple,
@@ -184,25 +223,7 @@ export const Dropzone = ({
     },
 
     // autoFocus: true,
-    accept: {
-      'audio/aac': ['.aac'],
-      'audio/flac': ['.flac'],
-      'audio/mpeg': ['.mp3', '.mpg', '.mpeg'],
-      'audio/mp4': ['.m4a'],
-      'audio/ogg': ['.ogg', '.oga'],
-      'audio/wav': ['.wav'],
-      'audio/webm': ['.webm'],
-      'audio/x-matroska': ['.mka'],
-      'video/mp4': ['.mp4', '.m4v'],
-      'video/mpeg': ['.mpeg', '.mpg'],
-      'video/ogg': ['.ogv'],
-      'video/webm': ['.webm'],
-      'video/x-matroska': ['.mkv'],
-      'video/x-flv': ['.flv'],
-      'video/3gpp': ['.3gp', '.3g2'],
-      'video/quicktime': ['.mov'],
-      'video/x-msvideo': ['.avi'],
-    },
+    accept: maxFiles === 1 ? acceptedTryFiles : acceptedFilesInApp,
     // disabled: status
     //   ? status.length > 0
     //   : Object.keys(multipleStatus).length > 0,
@@ -236,16 +257,28 @@ export const Dropzone = ({
   const hasMultipleUploadStarted =
     multipleStatus && Object.keys(multipleStatus).length > 0;
 
+  const goToApp = () => {
+    event('click', {
+      category: 'cta',
+      label: 'bad_file_type_cta',
+    });
+    router.push('/transcribe');
+  };
+
   return (
     <>
       {fileRejections.length > 0 && (
         <ErrorPanel>
           <P color="tomato9" size="20" weight="600">
-            Can't transcribe that file type 😞
+            File type in trial mode not supported 😞
           </P>
-          <P color="tomato10" size="16">
-            Allowed types: .mp3 .mp4 .mpeg .wav, .m4a
-          </P>
+          {/* <P color="tomato10" size="16">
+            Allowed types in trial: .mp3 .mp4 .mpeg .wav, .m4a
+          </P> */}
+          <Seperator orientation="horizontal" height="2px" color="tomato8" />
+          <StyledLink onClick={goToApp} color="black" underline>
+            Click here to transcribe any file type in the app
+          </StyledLink>
         </ErrorPanel>
       )}
 

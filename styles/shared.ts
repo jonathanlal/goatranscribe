@@ -11,6 +11,7 @@ export const StyledLink = styled('button', {
   padding: 0,
   cursor: 'pointer',
   fontSize: 'inherit',
+  letterSpacing: '1px',
 
   '&:hover': {
     textDecoration: 'underline',
@@ -20,6 +21,15 @@ export const StyledLink = styled('button', {
     color: {
       blue: {
         color: '$indigo7',
+      },
+      black: {
+        color: '$black',
+      },
+    },
+    underline: {
+      true: {
+        textDecoration: 'underline',
+        textUnderlineOffset: '2px',
       },
     },
   },
