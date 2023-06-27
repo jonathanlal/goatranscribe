@@ -113,6 +113,23 @@ const HomePage = () => {
     <>
       <Head>
         <title>Transcribe audio or video to text online</title>
+        <meta
+          name="description"
+          content="Transcribe audio or video to text online"
+          key="description"
+        />
+        <meta
+          property="og:title"
+          content="Transcribe audio or video to text online"
+        />
+        <meta
+          property="og:description"
+          content="Transcribe audio or video to text online"
+        />
+        <meta
+          property="og:image"
+          content="https://goatranscribe.com/share-image.png"
+        />
       </Head>
 
       <FrostByteWrapperWithoutRedux>
