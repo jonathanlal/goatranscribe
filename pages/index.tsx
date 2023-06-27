@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useImmer } from 'use-immer';
 import { Claims, getSession } from '@auth0/nextjs-auth0';
-import FrostbyteLayout from 'components/FrostbyteLayout';
+import FrostbyteLayout, {
+  FrostByteWrapperWithoutRedux,
+} from 'components/FrostbyteLayout';
 import Head from 'next/head';
 import { tryGoat } from 'utils/try';
 import {
@@ -16,19 +18,19 @@ import { useRouter } from 'next/router';
 import { HeroSection } from 'components/home_page/hero_section';
 import { event } from 'nextjs-google-analytics';
 
-export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const session = await getSession(ctx.req, ctx.res);
+// export async function getServerSideProps(ctx: GetServerSidePropsContext) {
+//   const session = await getSession(ctx.req, ctx.res);
 
-  return {
-    props: {
-      user: session?.user || null,
-    },
-  };
-}
+//   return {
+//     props: {
+//       user: session?.user || null,
+//     },
+//   };
+// }
 
-type HomePageProps = {
-  user: Claims;
-};
+// type HomePageProps = {
+//   user: Claims;
+// };
 
 // const Hero = styled('div', {
 //   display: 'flex',
@@ -53,7 +55,8 @@ type HomePageProps = {
 //   // boxShadow: '$colors$purple6 0px 8px 5px 3px',
 // });
 
-const HomePage = ({ user }: HomePageProps) => {
+// const HomePage = ({ user }: HomePageProps) => {
+const HomePage = () => {
   const [response, setResponse] = useState<TranscribeResponse>(null);
   const [status, setStatus] = useImmer<MultipleUploadsStatus>({});
   const [hasStarted, setHasStarted] = useState(false);
@@ -112,7 +115,7 @@ const HomePage = ({ user }: HomePageProps) => {
         <title>Transcribe audio or video to text online</title>
       </Head>
 
-      <FrostbyteLayout user={user}>
+      <FrostByteWrapperWithoutRedux>
         <HeroSection
           setFiles={setFiles}
           status={status}
@@ -124,7 +127,7 @@ const HomePage = ({ user }: HomePageProps) => {
 
         <Features />
         <CTABanner />
-      </FrostbyteLayout>
+      </FrostByteWrapperWithoutRedux>
     </>
   );
 };

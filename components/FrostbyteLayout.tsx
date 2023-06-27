@@ -22,6 +22,31 @@ export default function FrostbyteLayout({ children, user }) {
   );
 }
 
+export const FrostByteWrapperWithoutRedux = ({ children }) => {
+  const [darkMode, setDarkMode] = useState(false);
+
+  return (
+    <FrostbyteProvider
+      isDarkThemeActive={darkMode}
+      footer={{
+        footerItems: loggedOutfooterItems({ darkMode }),
+        name: 'GOATRANSCRIBE LALIBERTE',
+      }}
+      navMenu={{
+        navItems: loggedOutNavBar,
+        logo: {
+          comp: <Logo isDarkMode={darkMode} />,
+          href: '/api/auth/login',
+          title: 'Goatranscribe',
+        },
+        setDarkMode: () => setDarkMode(!darkMode),
+      }}
+    >
+      {children}
+    </FrostbyteProvider>
+  );
+};
+
 const FrostByteWrapper = ({ children, user }) => {
   const { darkMode } = useAppSelector((state) => state.settings);
   const dispath = useAppDispatch();

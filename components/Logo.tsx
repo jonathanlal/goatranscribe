@@ -198,9 +198,12 @@ export const Logo = ({
   isDarkMode: boolean;
   isFooter?: boolean;
 }) => {
-  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+  const [windowWidth, setWindowWidth] = useState(null);
 
   useEffect(() => {
+    // Set initial windowWidth on mount
+    setWindowWidth(window.innerWidth);
+
     const handleResize = () => setWindowWidth(window.innerWidth);
 
     // Set up event listener for resize events
@@ -210,9 +213,12 @@ export const Logo = ({
     return () => {
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, []); // Empty array ensures effect is only run on mount and unmount
 
   const mobileBreakpoint = 902;
+
+  // Don't render anything on the server
+  if (windowWidth === null) return null;
 
   if (windowWidth <= mobileBreakpoint && !isFooter) return <LogoMobile />;
   else return <LogoDesktop isDarkMode={isDarkMode} />;
