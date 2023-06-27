@@ -19,6 +19,9 @@ const Container = styled('div', {
   background: 'rgb(153, 86, 213, 0.2)',
   // background: 'rgb(153, 86, 213, 0.8)',
   minHeight: '400px',
+  '@mdMax': {
+    minHeight: '250px',
+  },
   // color: '$primaryContrast',
   // minHeight: '250px',
   outline: 'none',
