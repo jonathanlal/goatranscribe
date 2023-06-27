@@ -116,8 +116,9 @@ const DropzoneInfo = styled('div', {
   alignItems: 'center',
   justifyContent: 'center',
   gap: '10px',
+  letterSpacing: '1px',
   //   color: '#fff',
-  fontSize: '18px',
+  fontSize: '16px',
   fontWeight: '600',
   variants: {
     isDarkTheme: {
