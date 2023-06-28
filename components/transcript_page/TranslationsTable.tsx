@@ -49,7 +49,7 @@ export const TranslationsTable = ({
                     <CheckCircledIcon width={20} height={20} />,
                   ]}
                   onClick={() =>
-                    router.push(`/transcript/${entry_id}?lang=${translation}`)
+                    (window.location.href = `/transcript/${entry_id}?lang=${translation}`)
                   }
                 />
               ))}
@@ -90,9 +90,7 @@ export const TranslationsTable = ({
                   ]}
                   onClick={() =>
                     t.status === 'completed'
-                      ? router.push(
-                          `/transcript/${entry_id}?lang=${t.file_name}`
-                        )
+                      ? (window.location.href = `/transcript/${entry_id}?lang=${t.file_name}`)
                       : {}
                   }
                 />
