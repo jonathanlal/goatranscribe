@@ -115,7 +115,8 @@ const HomePage = () => {
         <title>Transcribe audio or video to text online</title>
         <meta
           name="description"
-          content="Transcribe audio or video to text online"
+          content="AI generated transcripts, subtitles, summaries and translations
+          with ChatGPT-4"
           key="description"
         />
         <meta
@@ -124,7 +125,8 @@ const HomePage = () => {
         />
         <meta
           property="og:description"
-          content="Transcribe audio or video to text online"
+          content="AI generated transcripts, subtitles, summaries and translations
+          with ChatGPT-4"
         />
         <meta
           property="og:image"
