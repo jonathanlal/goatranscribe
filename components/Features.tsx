@@ -382,7 +382,7 @@ export const Features = () => {
                   width="70px"
                   height="70px"
                   viewBox="0 0 122.88 119.853"
-                  enable-background="new 0 0 122.88 119.853"
+                  enableBackground="new 0 0 122.88 119.853"
                   xmlSpace="preserve"
                   isDarkTheme={isDarkTheme}
                   isOdd={false}
