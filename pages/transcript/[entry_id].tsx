@@ -33,6 +33,7 @@ import Spinner from 'components/Spinner';
 import { Subtitle } from 'interfaces/Subtitle';
 import H5AudioPlayer from 'react-h5-audio-player';
 import 'react-h5-audio-player/lib/styles.css';
+import Head from 'next/head';
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
@@ -356,6 +357,9 @@ const Layout = ({ entry_id, currentLang, data, user }) => {
 
   return (
     <>
+      <Head>
+        <title>Transcript | {data.file_name}</title>
+      </Head>
       <PageLayout>
         {' '}
         <CustomTable

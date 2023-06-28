@@ -9,6 +9,7 @@ import { CustomTable } from 'components/CustomTable';
 import { useEffect, useState } from 'react';
 import Spinner from 'components/Spinner';
 import { ArrowDownIcon } from '@radix-ui/react-icons';
+import Head from 'next/head';
 
 export const getServerSideProps = withPageAuthRequired({
   async getServerSideProps(ctx) {
@@ -85,76 +86,81 @@ const Transcripts = ({ user, files }: HomePageProps) => {
   }, [router]);
 
   return (
-    <FrostbyteLayout user={user}>
-      <Layout>
-        {files.length === 0 && (
-          <>
-            <PrimaryPanel onClick={() => router.push('/transcribe')}>
-              {nextPageLoading ? (
-                <Spinner width={50} height={50} />
-              ) : (
-                <>
-                  <H size={26} color="purple10">
-                    Experience the magic of AI ✨
-                  </H>
-                  <span>Click here to start transcribing immediately!</span>
-                </>
-              )}
-            </PrimaryPanel>
+    <>
+      <Head>
+        <title>Transcripts</title>
+      </Head>
+      <FrostbyteLayout user={user}>
+        <Layout>
+          {files.length === 0 && (
+            <>
+              <PrimaryPanel onClick={() => router.push('/transcribe')}>
+                {nextPageLoading ? (
+                  <Spinner width={50} height={50} />
+                ) : (
+                  <>
+                    <H size={26} color="purple10">
+                      Experience the magic of AI ✨
+                    </H>
+                    <span>Click here to start transcribing immediately!</span>
+                  </>
+                )}
+              </PrimaryPanel>
 
-            <P
-              css={{
-                textAlign: 'center',
-                color: '$mauve9',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '10px',
-              }}
-            >
-              <ArrowDownIcon /> Your transcripts will show here{' '}
-              <ArrowDownIcon />
-            </P>
-          </>
-        )}
-        {files.length > 0 && (
-          <>
-            <H color="purple9" css={{ lineHeight: 1.1, marginBottom: '5px' }}>
-              Your transcripts:
-            </H>
-            <P
-              size="20"
-              color="purple8"
-              css={{
-                '@mdMax': {
-                  marginBottom: '10px',
-                },
-              }}
-            >
-              Click on a file to view the transcript
-            </P>
-            <CustomTable
-              headerItems={['Name', 'Creation', 'Word count']}
-              items={files.map((file) => ({
-                entry_id: file.entry_id,
-                data: [
-                  file.file_name,
-                  formatDistanceToNow(
-                    parseISO(file.creation_date.replace(' ', 'T') + 'Z'),
-                    {
-                      addSuffix: true,
-                    }
-                  ),
-                  file.word_count,
-                ],
-                onClick: (entry_id: string) =>
-                  router.push(`/transcript/${entry_id}`),
-              }))}
-            />
-          </>
-        )}
-      </Layout>
-    </FrostbyteLayout>
+              <P
+                css={{
+                  textAlign: 'center',
+                  color: '$mauve9',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                }}
+              >
+                <ArrowDownIcon /> Your transcripts will show here{' '}
+                <ArrowDownIcon />
+              </P>
+            </>
+          )}
+          {files.length > 0 && (
+            <>
+              <H color="purple9" css={{ lineHeight: 1.1, marginBottom: '5px' }}>
+                Your transcripts:
+              </H>
+              <P
+                size="20"
+                color="purple8"
+                css={{
+                  '@mdMax': {
+                    marginBottom: '10px',
+                  },
+                }}
+              >
+                Click on a file to view the transcript
+              </P>
+              <CustomTable
+                headerItems={['Name', 'Creation', 'Word count']}
+                items={files.map((file) => ({
+                  entry_id: file.entry_id,
+                  data: [
+                    file.file_name,
+                    formatDistanceToNow(
+                      parseISO(file.creation_date.replace(' ', 'T') + 'Z'),
+                      {
+                        addSuffix: true,
+                      }
+                    ),
+                    file.word_count,
+                  ],
+                  onClick: (entry_id: string) =>
+                    router.push(`/transcript/${entry_id}`),
+                }))}
+              />
+            </>
+          )}
+        </Layout>
+      </FrostbyteLayout>
+    </>
   );
 };
 
