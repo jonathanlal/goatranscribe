@@ -1,15 +1,7 @@
-import {
-  Button,
-  CheckBox,
-  H,
-  P,
-  Seperator,
-  styled,
-  useFrostbyte,
-} from 'frostbyte';
+import { Button, H, P, Seperator, styled, useFrostbyte } from 'frostbyte';
 import { CustomTable } from './CustomTable';
 import { formatDistanceToNow, formatDuration, parseISO } from 'date-fns';
-import { formatBytes } from 'utils/formatBytes';
+// import { formatBytes } from 'utils/formatBytes';
 import { useImmer } from 'use-immer';
 import { useEffect, useState } from 'react';
 import { COST_PER_SECOND } from 'utils/constants';
@@ -23,11 +15,12 @@ import {
   useGetTranscribeStatusQuery,
   useTranscribeEntriesMutation,
 } from 'store/services/transcribe';
-import Spinner from './Spinner';
+// import Spinner from './Spinner';
 import { animateScroll as scroll } from 'react-scroll';
 import { ButtonLink } from './ButtonLink';
 import { TitleWithIconWrapper } from 'styles/shared';
 import { CheckCircledIcon, PlayIcon, Cross1Icon } from '@radix-ui/react-icons';
+import { TranscribeUploadsBtn } from './TranscribeUploadsBtn';
 
 // const fadeIn = keyframes({
 //     from: {
@@ -277,7 +270,7 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
             marginTop: '3px',
           }}
         />
-        <span>Start</span>
+        <span>Transcribe Selected</span>
       </div>
     </Button>
   );
@@ -405,10 +398,10 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
             headerItems={[
               'Name',
               'Uploaded',
-              'Size',
+              // 'Size',
               'Duration',
               'Cost',
-              'Status',
+              // 'Status',
               'Select',
             ]}
             items={uploads
@@ -424,7 +417,7 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
                       addSuffix: true,
                     }
                   ),
-                  formatBytes(u.file_size),
+                  // formatBytes(u.file_size),
                   // const hours = Math.floor(totalTime / 3600);
                   // const minutes = Math.floor((totalTime % 3600) / 60);
                   // const seconds = Math.round(totalTime % 60);
@@ -439,30 +432,25 @@ export const Uploads = ({ ssUploads }: { ssUploads: Upload[] }) => {
                     }
                   ),
                   `$${u.cost}`,
-                  u.status,
-                  <>
-                    {u.status !== 'processing' ? (
-                      <CheckBox
-                        checked={checkedUploads.some(
-                          (cu) => cu.entry_id === u.entry_id
-                        )}
-                        setChecked={() => {
-                          setCheckedUploads((draft) => {
-                            const index = draft.findIndex(
-                              (cu) => cu.entry_id === u.entry_id
-                            );
-                            if (index === -1) {
-                              draft.push(u);
-                            } else {
-                              draft.splice(index, 1);
-                            }
-                          });
-                        }}
-                      />
-                    ) : (
-                      <Spinner />
+                  // u.status,
+                  <TranscribeUploadsBtn
+                    isChecked={checkedUploads.some(
+                      (cu) => cu.entry_id === u.entry_id
                     )}
-                  </>,
+                    setChecked={() => {
+                      setCheckedUploads((draft) => {
+                        const index = draft.findIndex(
+                          (cu) => cu.entry_id === u.entry_id
+                        );
+                        if (index === -1) {
+                          draft.push(u);
+                        } else {
+                          draft.splice(index, 1);
+                        }
+                      });
+                    }}
+                    isProcessing={u.status === 'processing'}
+                  />,
                 ],
               }))}
           />
