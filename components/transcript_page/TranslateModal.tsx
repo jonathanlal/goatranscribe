@@ -151,6 +151,7 @@ export const TranslateModal = ({
         options={languageOptions}
         values={selectedLanguages}
         disabled={translateEntriesLoading}
+        closeOnSelect={true}
         itemRenderer={({ item, methods }) => (
           <StyledItem onClick={() => methods.addItem(item)}>
             <input
