@@ -10,6 +10,9 @@ export default handleAuth({
       audience: 'https://goatranscribe.com', // or AUTH0_AUDIENCE
       // Add the `offline_access` scope to also get a Refresh Token
       scope: 'openid profile email read:messages offline_access', // or AUTH0_SCOPE
+      prompt: 'consent',
+      // connection: 'facebook',
+      // connection_scope: 'public_profile, email'
     },
     returnTo: `${process.env.AUTH0_BASE_URL}/transcribe`, // or AUTH0_REDIRECT_URI
   }),
