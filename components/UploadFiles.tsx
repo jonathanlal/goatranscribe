@@ -184,6 +184,7 @@ export const UploadFiles = ({ settings, setSettings }) => {
           type="button"
           onClick={handleUpload}
           fullWidth
+          disabled={hasStarted}
           loading={hasStarted}
           loadingText="Uploading..."
           color="grass6"
